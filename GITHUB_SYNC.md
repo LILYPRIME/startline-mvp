@@ -7,6 +7,18 @@
 
 ## 使うコマンド
 
+変更を見張ってGitHubへ自動バックアップする:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\auto-backup.ps1
+```
+
+一度だけ現在の変更をcommit/pushする:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\auto-backup.ps1 -Once
+```
+
 バージョンを上げてバックアップする:
 
 ```powershell
@@ -42,6 +54,15 @@ powershell -ExecutionPolicy Bypass -File .\scripts\backup-version.ps1 -NoPush
 6. Gitコミットを作成
 7. `v0.1.1` のようなGitタグを作成
 8. GitHub remote `origin` があれば `main` とタグをpush
+
+## 自動バックアップ運用
+
+`start-auto-backup.bat` をダブルクリックすると監視が始まる。  
+ファイルを保存したあと、最後の変更から45秒たつと自動でcommitしてGitHubへpushする。
+
+止めたいときは、開いている黒い画面で `Ctrl + C` を押す。
+
+完全自動にしたい場合は、Windowsのスタートアップに `start-auto-backup.bat` のショートカットを入れる。
 
 ## 初回だけ必要なGitHub接続
 

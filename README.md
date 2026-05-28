@@ -36,3 +36,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\backup-version.ps1
 ```
 
 GitHub remote `origin` を設定していれば、コミットとタグが自動でpushされます。
+
+変更を見張って自動でGitHubへ上げたい場合は、`start-auto-backup.bat` をダブルクリックします。
