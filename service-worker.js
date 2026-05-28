@@ -1,4 +1,4 @@
-const CACHE_NAME = "startline-mvp-v0.1.1";
+const CACHE_NAME = "startline-mvp-v0.1.2";
 const ASSETS = [
   "./",
   "./index.html",
