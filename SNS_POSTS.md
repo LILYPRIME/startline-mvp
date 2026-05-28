@@ -11,6 +11,8 @@
 触って感想もらえると嬉しいです。  
 https://lilyprime.github.io/startline-mvp/
 
+添付: スマホトップ画面のスクショ
+
 ## テスター募集投稿
 
 出発前の準備時間を逆算するMVPを公開しました。
@@ -62,4 +64,3 @@ https://lilyprime.github.io/startline-mvp/
 https://lilyprime.github.io/startline-mvp/
 
 テスター募集中です。
-

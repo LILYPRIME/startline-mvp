@@ -317,10 +317,10 @@
     .intro-panel {
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 0.92fr) minmax(320px, 0.58fr);
       gap: 16px;
-      align-items: center;
-      padding: 16px;
+      align-items: stretch;
+      padding: 12px;
       background: #fffdfa;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -329,12 +329,14 @@
 
     .intro-copy {
       display: grid;
-      gap: 6px;
+      align-content: center;
+      gap: 12px;
       min-width: 0;
+      padding: 6px 4px;
     }
 
     .intro-copy strong {
-      font-size: clamp(18px, 2.4vw, 28px);
+      font-size: clamp(22px, 3vw, 38px);
       line-height: 1.18;
     }
 
@@ -346,12 +348,95 @@
       font-size: 14px;
     }
 
+    .intro-kicker {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
     .intro-actions,
     .feedback-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      justify-content: flex-end;
+      justify-content: flex-start;
+    }
+
+    .demo-card {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: #17201d;
+      color: #fffdfa;
+    }
+
+    .demo-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      color: #c7d9cf;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .demo-card-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .demo-card-title span {
+      color: #c7d9cf;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .demo-card-title strong {
+      font-size: clamp(42px, 6vw, 72px);
+      line-height: 0.95;
+      font-weight: 950;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .demo-rows {
+      display: grid;
+      gap: 8px;
+    }
+
+    .demo-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 7px;
+      background: rgba(255, 253, 250, 0.08);
+    }
+
+    .demo-row span {
+      color: #e8e2d7;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .demo-row strong {
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .demo-note {
+      margin: 0;
+      color: #c7d9cf;
+      font-size: 12px;
+      line-height: 1.45;
     }
 
     .button-row {
@@ -662,6 +747,15 @@
         justify-content: stretch;
       }
 
+      .demo-card {
+        order: -1;
+        padding: 14px;
+      }
+
+      .demo-card-title strong {
+        font-size: 50px;
+      }
+
       .planner,
       .results {
         gap: 10px;
@@ -716,7 +810,7 @@
         bottom: 0;
         z-index: 50;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 102px 102px;
+        grid-template-columns: minmax(0, 1fr) 96px 96px;
         gap: 8px;
         padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
         background: rgba(244, 240, 232, 0.94);
@@ -803,7 +897,7 @@
         <div class="brand-mark">SL</div>
         <div class="brand-name">
           <strong>StartLine</strong>
-          <span>出発前の行動逆算MVP</span>
+          <span>外出前の逆算メモ</span>
         </div>
       </div>
       <div class="top-actions">
@@ -816,12 +910,34 @@
     <div class="layout">
       <section class="intro-panel" aria-label="テスター向け案内">
         <div class="intro-copy">
-          <strong>到着時間から、準備を始める時刻を逆算します。</strong>
-          <p>シャワー、メイク、ヘアセット、ジム、移動時間を入れて、今日は何時から動けばいいかをスマホで確認できます。</p>
+          <div class="intro-kicker">公開MVP / テスター募集中</div>
+          <strong>明日の朝、何時に人間開始する？</strong>
+          <p>到着時間、準備ルーティン、移動のゆらぎを入れると、シャワーやメイクを始める時間まで逆算します。</p>
+          <div class="intro-actions">
+            <button class="primary-button" id="copyPublicUrl" type="button">URLコピー</button>
+            <button class="secondary-button" id="openFeedbackTop" type="button">感想を送る</button>
+          </div>
         </div>
-        <div class="intro-actions">
-          <button class="primary-button" id="copyPublicUrl" type="button">URLコピー</button>
-          <button class="secondary-button" id="openFeedbackTop" type="button">感想を送る</button>
+        <div class="demo-card" id="screenshotCard">
+          <div class="demo-card-top">
+            <span id="heroEvent">8:30 渋谷で朝ミーティング</span>
+            <span>StartLine</span>
+          </div>
+          <div class="demo-card-title">
+            <span>人間開始</span>
+            <strong id="heroStart">05:53</strong>
+          </div>
+          <div class="demo-rows">
+            <div class="demo-row">
+              <span>家を出る</span>
+              <strong id="heroLeave">07:28</strong>
+            </div>
+            <div class="demo-row">
+              <span>今日の判断</span>
+              <strong id="heroDecision">ジム見送り</strong>
+            </div>
+          </div>
+          <p class="demo-note">メイク35分、髪25分、移動ゆらぎ10分まで入れて逆算。</p>
         </div>
       </section>
 
@@ -1078,6 +1194,10 @@
       decisionTitle: document.querySelector("#decisionTitle"),
       decisionText: document.querySelector("#decisionText"),
       decisionBadge: document.querySelector("#decisionBadge"),
+      heroEvent: document.querySelector("#heroEvent"),
+      heroStart: document.querySelector("#heroStart"),
+      heroLeave: document.querySelector("#heroLeave"),
+      heroDecision: document.querySelector("#heroDecision"),
       timeline: document.querySelector("#timeline"),
       sharePreview: document.querySelector("#sharePreview"),
       copyShare: document.querySelector("#copyShare"),
@@ -1444,6 +1564,9 @@
       els.leaveDetail.textContent = `${state.travelMode} ${state.travelMinutes + state.trafficBuffer}分`;
       els.prepDetail.textContent = `${data.selectedOptional.length}件の任意タスクを採用`;
       els.marginDetail.textContent = `${state.earliestStart}から開始可能`;
+      els.heroEvent.textContent = `${state.arrivalTime} ${state.eventName}`;
+      els.heroStart.textContent = formatMinutes(data.finalStart);
+      els.heroLeave.textContent = formatMinutes(data.leaveBy);
 
       const optionalNames = data.selectedOptional.map((task) => task.name).join("、");
       const skippedOptional = data.optional.filter((task) => !data.selectedOptional.includes(task));
@@ -1456,11 +1579,13 @@
         els.decisionTitle.textContent = "今日は詰め込みすぎ";
         els.decisionText.textContent = `${Math.abs(data.finalMargin)}分の前倒しが必要です。任意タスクかバッファを削る判断が必要です。`;
         els.decisionBadge.textContent = "無理";
+        els.heroDecision.textContent = "詰め込みすぎ";
       } else if (data.finalMargin < 10) {
         els.decisionBox.classList.add("tight");
         els.decisionTitle.textContent = optionalNames ? "行けるけどかなりギリ" : "必須だけでギリ";
         els.decisionText.textContent = optionalNames ? `${optionalNames}は入りますが、余白は${data.finalMargin}分です。` : `余白は${data.finalMargin}分です。移動の乱れには弱い日です。`;
         els.decisionBadge.textContent = "注意";
+        els.heroDecision.textContent = optionalNames ? `${optionalNames}ギリ可` : "必須でギリ";
       } else if (nextOptional && data.selectedOptional.length === 0) {
         els.decisionBox.classList.add(shortageForNext <= 15 ? "tight" : "good");
         els.decisionTitle.textContent = `${nextOptional.name}は今日は見送り`;
@@ -1468,16 +1593,19 @@
           ? `あと${shortageForNext}分短縮できれば入ります。必須だけなら${data.finalMargin}分の余白があります。`
           : `入れるにはあと${shortageForNext}分必要です。必須だけなら${data.finalMargin}分の余白があります。`;
         els.decisionBadge.textContent = shortageForNext <= 15 ? "短縮可" : "見送り";
+        els.heroDecision.textContent = `${nextOptional.name}見送り`;
       } else if (nextOptional) {
         els.decisionBox.classList.add("good");
         els.decisionTitle.textContent = `${optionalNames}まで行ける`;
         els.decisionText.textContent = `${nextOptional.name}を追加するにはあと${shortageForNext}分必要です。開始は${formatMinutes(data.finalStart)}です。`;
         els.decisionBadge.textContent = "一部OK";
+        els.heroDecision.textContent = `${optionalNames}可`;
       } else {
         els.decisionBox.classList.add("good");
         els.decisionTitle.textContent = optionalNames ? `${optionalNames}まで行ける` : "必須ルーティンは余裕あり";
         els.decisionText.textContent = optionalNames ? `開始は${formatMinutes(data.finalStart)}。最低余白を残して予定前タスクを入れています。` : `開始は${formatMinutes(data.finalStart)}。任意タスクなしなら${data.availableBeforeBase}分の余白があります。`;
         els.decisionBadge.textContent = "OK";
+        els.heroDecision.textContent = optionalNames ? `${optionalNames}可` : "余裕あり";
       }
     }
 
