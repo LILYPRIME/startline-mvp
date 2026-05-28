@@ -63,6 +63,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\backup-version.ps1 -NoPush
 
 `start-auto-backup.bat` をダブルクリックすると監視が始まる。  
 ファイルを保存したあと、最後の変更から45秒たつと自動でcommitしてGitHubへpushする。
+同時に `gh-pages` ブランチへ公開用ファイルもpushする。
 
 止めたいときは、開いている黒い画面で `Ctrl + C` を押す。
 

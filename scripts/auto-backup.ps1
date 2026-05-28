@@ -57,8 +57,46 @@ function Push-Backup {
   if ($remote) {
     Invoke-Git push origin main
     Write-Host "Pushed to GitHub: $remote"
+    Publish-PagesBranch $remote
   } else {
     Write-Host "Committed locally. GitHub remote is not set."
+  }
+}
+
+function Publish-PagesBranch([string]$RemoteUrl) {
+  $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("startline-pages-" + [guid]::NewGuid().ToString("N"))
+  New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+
+  try {
+    $siteFiles = @(
+      "index.html",
+      "manifest.webmanifest",
+      "icon.svg",
+      "service-worker.js"
+    )
+
+    foreach ($file in $siteFiles) {
+      Copy-Item -LiteralPath (Join-Path $root $file) -Destination (Join-Path $tempRoot $file) -Force
+    }
+
+    New-Item -ItemType File -Force -Path (Join-Path $tempRoot ".nojekyll") | Out-Null
+
+    Push-Location $tempRoot
+    try {
+      Invoke-Git init
+      Invoke-Git checkout -B gh-pages
+      Invoke-Git config user.name "StartLine Auto Backup"
+      Invoke-Git config user.email "startline-auto-backup@users.noreply.github.com"
+      Invoke-Git add .
+      Invoke-Git commit -m ("deploy pages " + (Get-Date -Format "yyyy-MM-dd HH:mm"))
+      Invoke-Git remote add origin $RemoteUrl
+      Invoke-Git push origin gh-pages --force
+      Write-Host "Published static site to gh-pages."
+    } finally {
+      Pop-Location
+    }
+  } finally {
+    Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
   }
 }
 
