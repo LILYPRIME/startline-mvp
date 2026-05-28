@@ -102,12 +102,11 @@ $messageData = [pscustomobject]@{
   State = $state
 }
 
-$events = @(
-  Register-ObjectEvent -InputObject $watcher -EventName Created -Action $action -MessageData $messageData,
-  Register-ObjectEvent -InputObject $watcher -EventName Changed -Action $action -MessageData $messageData,
-  Register-ObjectEvent -InputObject $watcher -EventName Deleted -Action $action -MessageData $messageData,
-  Register-ObjectEvent -InputObject $watcher -EventName Renamed -Action $action -MessageData $messageData
-)
+$events = @()
+$events += Register-ObjectEvent -InputObject $watcher -EventName Created -Action $action -MessageData $messageData
+$events += Register-ObjectEvent -InputObject $watcher -EventName Changed -Action $action -MessageData $messageData
+$events += Register-ObjectEvent -InputObject $watcher -EventName Deleted -Action $action -MessageData $messageData
+$events += Register-ObjectEvent -InputObject $watcher -EventName Renamed -Action $action -MessageData $messageData
 
 try {
   while ($true) {
