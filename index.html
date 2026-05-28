@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18694f">
+  <meta name="app-version" content="0.1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="StartLine">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>StartLine MVP</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201d;
+      --muted: #66726d;
+      --soft: #f6f3ed;
+      --panel: #ffffff;
+      --line: #ddd8ce;
+      --green: #18694f;
+      --green-soft: #e4f1ea;
+      --red: #b44545;
+      --red-soft: #f8e8e6;
+      --blue: #275f8e;
+      --blue-soft: #e8f1f7;
+      --yellow: #b6801f;
+      --yellow-soft: #f7efd9;
+      --shadow: 0 18px 50px rgba(33, 37, 32, 0.09);
+      font-family: Inter, "Noto Sans JP", "Yu Gothic UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #ebe7dd;
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px clamp(16px, 3vw, 34px);
+      background: rgba(235, 231, 221, 0.92);
+      border-bottom: 1px solid rgba(143, 132, 112, 0.28);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: white;
+      font-weight: 800;
+    }
+
+    .brand-name {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .brand-name strong {
+      font-size: 15px;
+    }
+
+    .brand-name span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.64);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(330px, 420px) minmax(0, 1fr);
+      gap: 18px;
+      width: min(1400px, 100%);
+      margin: 0 auto;
+      padding: 18px clamp(12px, 2vw, 28px) 28px;
+    }
+
+    .planner,
+    .results {
+      min-width: 0;
+    }
+
+    .planner {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .results {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      min-height: calc(100vh - 96px);
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid #eeeae1;
+    }
+
+    .section-header h2,
+    .section-header h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .section-body {
+      padding: 14px 16px 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #d7d1c5;
+      border-radius: 6px;
+      background: #fffdfa;
+      color: var(--ink);
+      padding: 9px 10px;
+      outline: 0;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.55;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(24, 105, 79, 0.13);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .chip {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid #d8d1c3;
+      border-radius: 999px;
+      background: #fffdfa;
+      color: var(--ink);
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .chip[aria-pressed="true"] {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .task-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 82px 42px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .task-row.compact {
+      grid-template-columns: minmax(0, 1fr) 82px 92px 42px;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #d7d1c5;
+      border-radius: 6px;
+      background: #fffdfa;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .icon-button:hover {
+      background: #f6f1e8;
+    }
+
+    .secondary-button,
+    .primary-button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 6px;
+      padding: 0 14px;
+      font-weight: 800;
+    }
+
+    .secondary-button {
+      border: 1px solid #d7d1c5;
+      background: #fffdfa;
+      color: var(--ink);
+    }
+
+    .primary-button {
+      background: var(--green);
+      color: white;
+    }
+
+    .mobile-dock {
+      display: none;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 110px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdfa;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      font-size: clamp(22px, 3vw, 40px);
+      line-height: 1;
+      word-break: keep-all;
+    }
+
+    .metric small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdfa;
+    }
+
+    .decision.good {
+      border-color: #b9d7c8;
+      background: var(--green-soft);
+    }
+
+    .decision.tight {
+      border-color: #e5cd8a;
+      background: var(--yellow-soft);
+    }
+
+    .decision.bad {
+      border-color: #e2b3ad;
+      background: var(--red-soft);
+    }
+
+    .decision strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+    }
+
+    .decision p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .decision-badge {
+      min-width: 86px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .timeline-wrap {
+      display: grid;
+      min-height: 0;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #eee7db;
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      background: #fffdfa;
+    }
+
+    .timeline-item.optional {
+      border-left-color: var(--blue);
+    }
+
+    .timeline-item.travel {
+      border-left-color: var(--yellow);
+    }
+
+    .timeline-item.deadline {
+      border-left-color: var(--red);
+    }
+
+    .time {
+      font-variant-numeric: tabular-nums;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .timeline-item h4 {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .duration {
+      min-width: 58px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #f1ece3;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .share-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 144px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .share-card {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid #ded7cb;
+      background: #17201d;
+      color: #fffdfa;
+    }
+
+    .share-card span {
+      color: #c7d9cf;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .share-card strong {
+      font-size: clamp(24px, 4vw, 48px);
+      line-height: 1.05;
+    }
+
+    .share-card p {
+      margin: 0;
+      color: #e8e2d7;
+      line-height: 1.5;
+    }
+
+    .share-actions {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      padding: 24px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 160ms ease;
+      padding: 11px 14px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: white;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .results {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        background: #f4f0e8;
+      }
+
+      .app-shell {
+        padding-bottom: calc(82px + env(safe-area-inset-bottom));
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+        position: static;
+        padding: 12px;
+      }
+
+      .top-actions {
+        justify-content: space-between;
+      }
+
+      .layout {
+        gap: 10px;
+        padding: 10px 10px 18px;
+      }
+
+      .planner,
+      .results {
+        gap: 10px;
+      }
+
+      .section {
+        border-radius: 7px;
+        box-shadow: none;
+      }
+
+      .section-header {
+        padding: 12px 12px 8px;
+      }
+
+      .section-body {
+        padding: 12px;
+      }
+
+      .form-grid,
+      .summary-grid,
+      .share-grid {
+        grid-template-columns: 1fr;
+      }
+
+      input,
+      select,
+      textarea,
+      .primary-button,
+      .secondary-button,
+      .icon-button,
+      .chip {
+        min-height: 48px;
+      }
+
+      .choice-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .chip {
+        border-radius: 7px;
+      }
+
+      .button-row {
+        display: none;
+      }
+
+      .mobile-dock {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 116px;
+        gap: 8px;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(244, 240, 232, 0.94);
+        border-top: 1px solid rgba(143, 132, 112, 0.34);
+        backdrop-filter: blur(14px);
+      }
+
+      .mobile-dock .primary-button,
+      .mobile-dock .secondary-button {
+        min-height: 52px;
+      }
+
+      .task-row,
+      .task-row.compact {
+        grid-template-columns: minmax(0, 1fr) 72px 38px;
+      }
+
+      .task-row.compact label:nth-child(3) {
+        grid-column: 1 / 3;
+      }
+
+      .timeline-item {
+        grid-template-columns: 72px minmax(0, 1fr);
+      }
+
+      .duration {
+        grid-column: 2;
+        justify-self: start;
+      }
+
+      .decision {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      .decision-badge {
+        justify-self: start;
+      }
+
+      .metric {
+        min-height: 86px;
+      }
+
+      .metric strong {
+        font-size: 34px;
+      }
+
+      .share-actions {
+        display: none;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .section-body,
+      .timeline {
+        padding: 12px;
+      }
+
+      .brand-name span,
+      .status-pill {
+        font-size: 11px;
+      }
+
+      .status-pill {
+        padding-inline: 9px;
+      }
+
+      .time {
+        font-size: 19px;
+      }
+
+      .task-row,
+      .task-row.compact {
+        grid-template-columns: minmax(0, 1fr) 70px 38px;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="StartLine">
+        <div class="brand-mark">SL</div>
+        <div class="brand-name">
+          <strong>StartLine</strong>
+          <span>出発前の行動逆算MVP</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="status-pill" id="versionPill">v0.1.0</div>
+        <div class="status-pill" id="saveStatus">未保存の変更なし</div>
+        <button class="secondary-button" id="resetDemo" type="button">デモに戻す</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="planner" aria-label="入力">
+        <section class="section">
+          <div class="section-header">
+            <h2>予定</h2>
+          </div>
+          <div class="section-body">
+            <div class="form-grid">
+              <label>
+                到着時刻
+                <input id="arrivalTime" type="time" value="08:30">
+              </label>
+              <label>
+                到着バッファ
+                <select id="arrivalBuffer">
+                  <option value="0">なし</option>
+                  <option value="5">5分</option>
+                  <option value="10" selected>10分</option>
+                  <option value="15">15分</option>
+                  <option value="30">30分</option>
+                </select>
+              </label>
+              <label class="full">
+                予定名
+                <input id="eventName" type="text" value="渋谷で朝ミーティング" maxlength="42">
+              </label>
+              <label>
+                片道移動
+                <input id="travelMinutes" type="number" value="42" min="0" max="600" inputmode="numeric">
+              </label>
+              <label>
+                交通ゆらぎ
+                <select id="trafficBuffer">
+                  <option value="0">通常</option>
+                  <option value="10" selected>混みそう</option>
+                  <option value="20">かなり混む</option>
+                  <option value="40">空港・重要予定</option>
+                </select>
+              </label>
+              <label class="full">
+                交通手段
+                <div class="choice-row" id="travelMode">
+                  <button class="chip" type="button" data-value="電車" aria-pressed="true">電車</button>
+                  <button class="chip" type="button" data-value="車" aria-pressed="false">車</button>
+                  <button class="chip" type="button" data-value="徒歩" aria-pressed="false">徒歩</button>
+                  <button class="chip" type="button" data-value="飛行機" aria-pressed="false">飛行機</button>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h3>必須ルーティン</h3>
+            <button class="icon-button" id="addRequired" type="button" aria-label="必須ルーティンを追加" title="追加">+</button>
+          </div>
+          <div class="section-body">
+            <div class="task-list" id="requiredTasks"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h3>行けたらやる</h3>
+            <button class="icon-button" id="addOptional" type="button" aria-label="任意タスクを追加" title="追加">+</button>
+          </div>
+          <div class="section-body">
+            <div class="task-list" id="optionalTasks"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h3>今日の制約</h3>
+          </div>
+          <div class="section-body">
+            <div class="form-grid">
+              <label>
+                逆算開始できる時刻
+                <input id="earliestStart" type="time" value="05:30">
+              </label>
+              <label>
+                最低余白
+                <select id="minimumMargin">
+                  <option value="0">なし</option>
+                  <option value="5">5分</option>
+                  <option value="10" selected>10分</option>
+                  <option value="20">20分</option>
+                  <option value="30">30分</option>
+                </select>
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" id="calculate" type="button">逆算する</button>
+              <button class="secondary-button" id="saveTemplate" type="button">ルーティン保存</button>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="results" aria-label="結果">
+        <section class="section">
+          <div class="section-header">
+            <h2>今日の開始ライン</h2>
+          </div>
+          <div class="section-body">
+            <div class="summary-grid">
+              <div class="metric">
+                <span>人間開始</span>
+                <strong id="startTime">--:--</strong>
+                <small id="startDetail">ルーティンから逆算</small>
+              </div>
+              <div class="metric">
+                <span>家を出る</span>
+                <strong id="leaveTime">--:--</strong>
+                <small id="leaveDetail">交通ゆらぎ込み</small>
+              </div>
+              <div class="metric">
+                <span>準備合計</span>
+                <strong id="prepTotal">--</strong>
+                <small id="prepDetail">必須タスクのみ</small>
+              </div>
+              <div class="metric">
+                <span>自由余白</span>
+                <strong id="freeMargin">--</strong>
+                <small id="marginDetail">開始可能時刻との差</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="decision section" id="decisionBox">
+          <div>
+            <strong id="decisionTitle">逆算待ち</strong>
+            <p id="decisionText">到着時刻とルーティンを入れると、任意タスクを入れる余裕まで判定します。</p>
+          </div>
+          <div class="decision-badge" id="decisionBadge">READY</div>
+        </section>
+
+        <section class="section timeline-wrap">
+          <div class="section-header">
+            <h2>タイムライン</h2>
+          </div>
+          <div class="timeline" id="timeline">
+            <div class="empty-state">逆算すると、ここに今日の行動順が出ます。</div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>SNS共有</h2>
+          </div>
+          <div class="section-body share-grid">
+            <div class="share-card" id="sharePreview">
+              <span>StartLine</span>
+              <strong>今日は --:-- に人間開始</strong>
+              <p>ジム判定と出発時刻を逆算中。</p>
+            </div>
+            <div class="share-actions">
+              <button class="primary-button" id="copyShare" type="button">共有文コピー</button>
+              <button class="secondary-button" id="shareNative" type="button">シェア</button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <nav class="mobile-dock" aria-label="スマホ操作">
+      <button class="primary-button" id="calculateMobile" type="button">逆算する</button>
+      <button class="secondary-button" id="copyShareMobile" type="button">共有</button>
+    </nav>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "startline-mvp-state";
+
+    const demoState = {
+      arrivalTime: "08:30",
+      arrivalBuffer: 10,
+      eventName: "渋谷で朝ミーティング",
+      travelMinutes: 42,
+      trafficBuffer: 10,
+      travelMode: "電車",
+      earliestStart: "05:30",
+      minimumMargin: 10,
+      required: [
+        { name: "シャワー", minutes: 20 },
+        { name: "ヘアセット", minutes: 25 },
+        { name: "メイク", minutes: 35 },
+        { name: "着替えと荷物", minutes: 15 }
+      ],
+      optional: [
+        { name: "ジム", minutes: 60, priority: "高" },
+        { name: "朝食", minutes: 15, priority: "中" }
+      ]
+    };
+
+    const state = loadState();
+    let selectedTravelMode = state.travelMode || demoState.travelMode;
+    let lastShareText = "";
+
+    const els = {
+      arrivalTime: document.querySelector("#arrivalTime"),
+      arrivalBuffer: document.querySelector("#arrivalBuffer"),
+      eventName: document.querySelector("#eventName"),
+      travelMinutes: document.querySelector("#travelMinutes"),
+      trafficBuffer: document.querySelector("#trafficBuffer"),
+      travelMode: document.querySelector("#travelMode"),
+      earliestStart: document.querySelector("#earliestStart"),
+      minimumMargin: document.querySelector("#minimumMargin"),
+      requiredTasks: document.querySelector("#requiredTasks"),
+      optionalTasks: document.querySelector("#optionalTasks"),
+      calculate: document.querySelector("#calculate"),
+      calculateMobile: document.querySelector("#calculateMobile"),
+      addRequired: document.querySelector("#addRequired"),
+      addOptional: document.querySelector("#addOptional"),
+      saveTemplate: document.querySelector("#saveTemplate"),
+      resetDemo: document.querySelector("#resetDemo"),
+      saveStatus: document.querySelector("#saveStatus"),
+      startTime: document.querySelector("#startTime"),
+      startDetail: document.querySelector("#startDetail"),
+      leaveTime: document.querySelector("#leaveTime"),
+      leaveDetail: document.querySelector("#leaveDetail"),
+      prepTotal: document.querySelector("#prepTotal"),
+      prepDetail: document.querySelector("#prepDetail"),
+      freeMargin: document.querySelector("#freeMargin"),
+      marginDetail: document.querySelector("#marginDetail"),
+      decisionBox: document.querySelector("#decisionBox"),
+      decisionTitle: document.querySelector("#decisionTitle"),
+      decisionText: document.querySelector("#decisionText"),
+      decisionBadge: document.querySelector("#decisionBadge"),
+      timeline: document.querySelector("#timeline"),
+      sharePreview: document.querySelector("#sharePreview"),
+      copyShare: document.querySelector("#copyShare"),
+      copyShareMobile: document.querySelector("#copyShareMobile"),
+      shareNative: document.querySelector("#shareNative"),
+      toast: document.querySelector("#toast")
+    };
+
+    hydrate();
+    renderTasks();
+    bindEvents();
+    calculatePlan();
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved || !Array.isArray(saved.required) || !Array.isArray(saved.optional)) {
+          return structuredClone(demoState);
+        }
+        return { ...structuredClone(demoState), ...saved };
+      } catch {
+        return structuredClone(demoState);
+      }
+    }
+
+    function hydrate() {
+      els.arrivalTime.value = state.arrivalTime;
+      els.arrivalBuffer.value = String(state.arrivalBuffer);
+      els.eventName.value = state.eventName;
+      els.travelMinutes.value = String(state.travelMinutes);
+      els.trafficBuffer.value = String(state.trafficBuffer);
+      els.earliestStart.value = state.earliestStart;
+      els.minimumMargin.value = String(state.minimumMargin);
+      updateTravelMode();
+    }
+
+    function bindEvents() {
+      [
+        els.arrivalTime,
+        els.arrivalBuffer,
+        els.eventName,
+        els.travelMinutes,
+        els.trafficBuffer,
+        els.earliestStart,
+        els.minimumMargin
+      ].forEach((input) => {
+        input.addEventListener("input", () => {
+          syncStateFromInputs();
+          calculatePlan();
+          markDirty();
+        });
+      });
+
+      els.travelMode.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-value]");
+        if (!button) return;
+        selectedTravelMode = button.dataset.value;
+        syncStateFromInputs();
+        updateTravelMode();
+        calculatePlan();
+        markDirty();
+      });
+
+      els.addRequired.addEventListener("click", () => {
+        state.required.push({ name: "新しい準備", minutes: 10 });
+        renderTasks();
+        calculatePlan();
+        markDirty();
+      });
+
+      els.addOptional.addEventListener("click", () => {
+        state.optional.push({ name: "やりたいこと", minutes: 20, priority: "中" });
+        renderTasks();
+        calculatePlan();
+        markDirty();
+      });
+
+      els.calculate.addEventListener("click", () => {
+        syncStateFromInputs();
+        calculatePlan();
+        showToast("逆算しました");
+      });
+
+      els.calculateMobile.addEventListener("click", () => {
+        syncStateFromInputs();
+        calculatePlan();
+        document.querySelector(".results").scrollIntoView({ behavior: "smooth", block: "start" });
+        showToast("逆算しました");
+      });
+
+      els.saveTemplate.addEventListener("click", () => {
+        persistState();
+        showToast("ルーティンを保存しました");
+      });
+
+      els.resetDemo.addEventListener("click", () => {
+        Object.assign(state, structuredClone(demoState));
+        selectedTravelMode = state.travelMode;
+        hydrate();
+        renderTasks();
+        calculatePlan();
+        persistState();
+        showToast("デモ状態に戻しました");
+      });
+
+      els.copyShare.addEventListener("click", async () => {
+        if (!lastShareText) calculatePlan();
+        await copyText(lastShareText);
+      });
+
+      els.copyShareMobile.addEventListener("click", async () => {
+        if (!lastShareText) calculatePlan();
+        await copyText(lastShareText);
+      });
+
+      els.shareNative.addEventListener("click", async () => {
+        if (!lastShareText) calculatePlan();
+        if (navigator.share) {
+          try {
+            await navigator.share({ text: lastShareText });
+          } catch {
+            return;
+          }
+        } else {
+          await copyText(lastShareText);
+        }
+      });
+    }
+
+    function renderTasks() {
+      els.requiredTasks.innerHTML = "";
+      state.required.forEach((task, index) => {
+        els.requiredTasks.appendChild(createTaskRow(task, index, "required"));
+      });
+
+      els.optionalTasks.innerHTML = "";
+      state.optional.forEach((task, index) => {
+        els.optionalTasks.appendChild(createTaskRow(task, index, "optional"));
+      });
+    }
+
+    function createTaskRow(task, index, type) {
+      const row = document.createElement("div");
+      row.className = type === "optional" ? "task-row compact" : "task-row";
+
+      const nameLabel = document.createElement("label");
+      nameLabel.textContent = "名前";
+      const name = document.createElement("input");
+      name.type = "text";
+      name.value = task.name;
+      name.maxLength = 24;
+      name.addEventListener("input", () => {
+        task.name = name.value.trimStart();
+        calculatePlan();
+        markDirty();
+      });
+      nameLabel.appendChild(name);
+
+      const minutesLabel = document.createElement("label");
+      minutesLabel.textContent = "分";
+      const minutes = document.createElement("input");
+      minutes.type = "number";
+      minutes.value = String(task.minutes);
+      minutes.min = "0";
+      minutes.max = "300";
+      minutes.inputMode = "numeric";
+      minutes.addEventListener("input", () => {
+        task.minutes = clampNumber(minutes.value, 0, 300);
+        calculatePlan();
+        markDirty();
+      });
+      minutesLabel.appendChild(minutes);
+
+      row.appendChild(nameLabel);
+      row.appendChild(minutesLabel);
+
+      if (type === "optional") {
+        const priorityLabel = document.createElement("label");
+        priorityLabel.textContent = "優先";
+        const priority = document.createElement("select");
+        ["高", "中", "低"].forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          option.selected = (task.priority || "中") === value;
+          priority.appendChild(option);
+        });
+        priority.addEventListener("change", () => {
+          task.priority = priority.value;
+          calculatePlan();
+          markDirty();
+        });
+        priorityLabel.appendChild(priority);
+        row.appendChild(priorityLabel);
+      }
+
+      const remove = document.createElement("button");
+      remove.className = "icon-button";
+      remove.type = "button";
+      remove.textContent = "×";
+      remove.title = "削除";
+      remove.setAttribute("aria-label", `${task.name || "タスク"}を削除`);
+      remove.addEventListener("click", () => {
+        state[type].splice(index, 1);
+        renderTasks();
+        calculatePlan();
+        markDirty();
+      });
+      row.appendChild(remove);
+      return row;
+    }
+
+    function syncStateFromInputs() {
+      state.arrivalTime = els.arrivalTime.value || "08:30";
+      state.arrivalBuffer = clampNumber(els.arrivalBuffer.value, 0, 180);
+      state.eventName = els.eventName.value.trim() || "予定";
+      state.travelMinutes = clampNumber(els.travelMinutes.value, 0, 600);
+      state.trafficBuffer = clampNumber(els.trafficBuffer.value, 0, 180);
+      state.travelMode = selectedTravelMode;
+      state.earliestStart = els.earliestStart.value || "05:30";
+      state.minimumMargin = clampNumber(els.minimumMargin.value, 0, 180);
+    }
+
+    function calculatePlan() {
+      syncStateFromInputs();
+      const required = cleanTasks(state.required);
+      const optional = cleanTasks(state.optional);
+      const arrival = timeToMinutes(state.arrivalTime);
+      const leaveBy = arrival - state.arrivalBuffer - state.travelMinutes - state.trafficBuffer;
+      const requiredTotal = sumMinutes(required);
+      const baseStart = leaveBy - requiredTotal;
+      const earliest = timeToMinutes(state.earliestStart);
+      const availableBeforeBase = baseStart - earliest;
+      const freeAfterMinimum = availableBeforeBase - state.minimumMargin;
+      const selectedOptional = chooseOptional(optional, Math.max(0, freeAfterMinimum));
+      const optionalTotal = sumMinutes(selectedOptional);
+      const finalStart = baseStart - optionalTotal;
+      const finalMargin = finalStart - earliest;
+      const timeline = buildTimeline({
+        selectedOptional,
+        required,
+        finalStart,
+        leaveBy,
+        arrival,
+        travelMinutes: state.travelMinutes + state.trafficBuffer,
+        arrivalBuffer: state.arrivalBuffer
+      });
+
+      updateSummary({
+        finalStart,
+        leaveBy,
+        requiredTotal,
+        optionalTotal,
+        finalMargin,
+        availableBeforeBase,
+        selectedOptional,
+        optional
+      });
+      updateTimeline(timeline);
+      updateShare({ finalStart, leaveBy, selectedOptional, finalMargin });
+    }
+
+    function cleanTasks(tasks) {
+      return tasks
+        .map((task) => ({
+          name: String(task.name || "タスク").trim() || "タスク",
+          minutes: clampNumber(task.minutes, 0, 300),
+          priority: task.priority || "中"
+        }))
+        .filter((task) => task.minutes > 0);
+    }
+
+    function chooseOptional(tasks, budget) {
+      const ordered = sortByPriority(tasks);
+      const picked = [];
+      let remaining = budget;
+      for (const task of ordered) {
+        if (task.minutes <= remaining) {
+          picked.push(task);
+          remaining -= task.minutes;
+        }
+      }
+      return picked;
+    }
+
+    function sortByPriority(tasks) {
+      const rank = { "高": 0, "中": 1, "低": 2 };
+      return [...tasks].sort((a, b) => {
+        const priorityDiff = (rank[a.priority] ?? 1) - (rank[b.priority] ?? 1);
+        return priorityDiff || a.minutes - b.minutes;
+      });
+    }
+
+    function buildTimeline({ selectedOptional, required, finalStart, leaveBy, arrival, travelMinutes, arrivalBuffer }) {
+      const items = [];
+      let cursor = finalStart;
+      selectedOptional.forEach((task) => {
+        items.push({
+          time: cursor,
+          title: task.name,
+          note: `任意タスク・優先度${task.priority}`,
+          minutes: task.minutes,
+          type: "optional"
+        });
+        cursor += task.minutes;
+      });
+      required.forEach((task) => {
+        items.push({
+          time: cursor,
+          title: task.name,
+          note: "必須ルーティン",
+          minutes: task.minutes,
+          type: "required"
+        });
+        cursor += task.minutes;
+      });
+      items.push({
+        time: leaveBy,
+        title: "家を出る",
+        note: `${state.travelMode} ${state.travelMinutes}分 + ゆらぎ ${state.trafficBuffer}分`,
+        minutes: travelMinutes,
+        type: "travel"
+      });
+      items.push({
+        time: arrival - arrivalBuffer,
+        title: "現地付近に到着",
+        note: `到着バッファ ${arrivalBuffer}分`,
+        minutes: arrivalBuffer,
+        type: "deadline"
+      });
+      items.push({
+        time: arrival,
+        title: state.eventName,
+        note: "予定開始",
+        minutes: 0,
+        type: "deadline"
+      });
+      return items;
+    }
+
+    function updateSummary(data) {
+      els.startTime.textContent = formatMinutes(data.finalStart);
+      els.leaveTime.textContent = formatMinutes(data.leaveBy);
+      els.prepTotal.textContent = `${data.requiredTotal}分`;
+      els.freeMargin.textContent = data.finalMargin >= 0 ? `${data.finalMargin}分` : `${Math.abs(data.finalMargin)}分不足`;
+      els.startDetail.textContent = data.optionalTotal > 0 ? `任意タスク ${data.optionalTotal}分込み` : "必須ルーティンのみ";
+      els.leaveDetail.textContent = `${state.travelMode} ${state.travelMinutes + state.trafficBuffer}分`;
+      els.prepDetail.textContent = `${data.selectedOptional.length}件の任意タスクを採用`;
+      els.marginDetail.textContent = `${state.earliestStart}から開始可能`;
+
+      const optionalNames = data.selectedOptional.map((task) => task.name).join("、");
+      const skippedOptional = data.optional.filter((task) => !data.selectedOptional.includes(task));
+      const nextOptional = sortByPriority(skippedOptional)[0];
+      const remainingOptionalBudget = Math.max(0, data.availableBeforeBase - state.minimumMargin - data.optionalTotal);
+      const shortageForNext = nextOptional ? Math.max(0, nextOptional.minutes - remainingOptionalBudget) : 0;
+      els.decisionBox.classList.remove("good", "tight", "bad");
+      if (data.finalMargin < 0) {
+        els.decisionBox.classList.add("bad");
+        els.decisionTitle.textContent = "今日は詰め込みすぎ";
+        els.decisionText.textContent = `${Math.abs(data.finalMargin)}分の前倒しが必要です。任意タスクかバッファを削る判断が必要です。`;
+        els.decisionBadge.textContent = "無理";
+      } else if (data.finalMargin < 10) {
+        els.decisionBox.classList.add("tight");
+        els.decisionTitle.textContent = optionalNames ? "行けるけどかなりギリ" : "必須だけでギリ";
+        els.decisionText.textContent = optionalNames ? `${optionalNames}は入りますが、余白は${data.finalMargin}分です。` : `余白は${data.finalMargin}分です。移動の乱れには弱い日です。`;
+        els.decisionBadge.textContent = "注意";
+      } else if (nextOptional && data.selectedOptional.length === 0) {
+        els.decisionBox.classList.add(shortageForNext <= 15 ? "tight" : "good");
+        els.decisionTitle.textContent = `${nextOptional.name}は今日は見送り`;
+        els.decisionText.textContent = shortageForNext <= 15
+          ? `あと${shortageForNext}分短縮できれば入ります。必須だけなら${data.finalMargin}分の余白があります。`
+          : `入れるにはあと${shortageForNext}分必要です。必須だけなら${data.finalMargin}分の余白があります。`;
+        els.decisionBadge.textContent = shortageForNext <= 15 ? "短縮可" : "見送り";
+      } else if (nextOptional) {
+        els.decisionBox.classList.add("good");
+        els.decisionTitle.textContent = `${optionalNames}まで行ける`;
+        els.decisionText.textContent = `${nextOptional.name}を追加するにはあと${shortageForNext}分必要です。開始は${formatMinutes(data.finalStart)}です。`;
+        els.decisionBadge.textContent = "一部OK";
+      } else {
+        els.decisionBox.classList.add("good");
+        els.decisionTitle.textContent = optionalNames ? `${optionalNames}まで行ける` : "必須ルーティンは余裕あり";
+        els.decisionText.textContent = optionalNames ? `開始は${formatMinutes(data.finalStart)}。最低余白を残して予定前タスクを入れています。` : `開始は${formatMinutes(data.finalStart)}。任意タスクなしなら${data.availableBeforeBase}分の余白があります。`;
+        els.decisionBadge.textContent = "OK";
+      }
+    }
+
+    function updateTimeline(items) {
+      els.timeline.innerHTML = "";
+      items.forEach((item) => {
+        const row = document.createElement("article");
+        row.className = `timeline-item ${item.type}`;
+        row.innerHTML = `
+          <div class="time">${formatMinutes(item.time)}</div>
+          <div>
+            <h4>${escapeHtml(item.title)}</h4>
+            <p>${escapeHtml(item.note)}</p>
+          </div>
+          <div class="duration">${item.minutes ? `${item.minutes}分` : "開始"}</div>
+        `;
+        els.timeline.appendChild(row);
+      });
+    }
+
+    function updateShare({ finalStart, leaveBy, selectedOptional, finalMargin }) {
+      const optionalText = selectedOptional.length
+        ? `${selectedOptional.map((task) => task.name).join("、")}まで行ける`
+        : "今日は必須ルーティン優先";
+      const marginText = finalMargin >= 0 ? `余白${finalMargin}分` : `${Math.abs(finalMargin)}分不足`;
+      els.sharePreview.innerHTML = `
+        <span>StartLine</span>
+        <strong>今日は ${formatMinutes(finalStart)} に人間開始</strong>
+        <p>${state.eventName} / ${formatMinutes(leaveBy)}に家を出る / ${optionalText} / ${marginText}</p>
+      `;
+      lastShareText = `今日は${formatMinutes(finalStart)}に人間開始。\n${state.eventName}は${state.arrivalTime}、${formatMinutes(leaveBy)}に家を出る。\n${optionalText}。${marginText}。\n#StartLine #出発逆算`;
+    }
+
+    function persistState() {
+      syncStateFromInputs();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      els.saveStatus.textContent = "保存済み";
+    }
+
+    function markDirty() {
+      els.saveStatus.textContent = "未保存の変更あり";
+    }
+
+    function updateTravelMode() {
+      [...els.travelMode.querySelectorAll("button")].forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.value === selectedTravelMode ? "true" : "false");
+      });
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("共有文をコピーしました");
+      } catch {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+        showToast("共有文をコピーしました");
+      }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function sumMinutes(tasks) {
+      return tasks.reduce((total, task) => total + task.minutes, 0);
+    }
+
+    function timeToMinutes(value) {
+      const [hours, minutes] = String(value || "00:00").split(":").map(Number);
+      return (hours * 60) + minutes;
+    }
+
+    function formatMinutes(value) {
+      const day = 24 * 60;
+      const normalized = ((Math.round(value) % day) + day) % day;
+      const hours = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const minutes = String(normalized % 60).padStart(2, "0");
+      return `${hours}:${minutes}`;
+    }
+
+    function clampNumber(value, min, max) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return min;
+      return Math.min(max, Math.max(min, Math.round(number)));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
