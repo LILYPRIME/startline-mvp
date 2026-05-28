@@ -103,10 +103,10 @@ $messageData = [pscustomobject]@{
 }
 
 $events = @(
-  Register-ObjectEvent $watcher Created -Action $action -MessageData $messageData,
-  Register-ObjectEvent $watcher Changed -Action $action -MessageData $messageData,
-  Register-ObjectEvent $watcher Deleted -Action $action -MessageData $messageData,
-  Register-ObjectEvent $watcher Renamed -Action $action -MessageData $messageData
+  Register-ObjectEvent -InputObject $watcher -EventName Created -Action $action -MessageData $messageData,
+  Register-ObjectEvent -InputObject $watcher -EventName Changed -Action $action -MessageData $messageData,
+  Register-ObjectEvent -InputObject $watcher -EventName Deleted -Action $action -MessageData $messageData,
+  Register-ObjectEvent -InputObject $watcher -EventName Renamed -Action $action -MessageData $messageData
 )
 
 try {
@@ -135,4 +135,3 @@ try {
   }
   $watcher.Dispose()
 }
-
