@@ -6,6 +6,8 @@
 
 https://lilyprime.github.io/startline-mvp/
 
+テスター募集とSNS投稿は [SNS_POSTS.md](./SNS_POSTS.md) と [TESTER_KIT.md](./TESTER_KIT.md) にまとめています。
+
 ## 開き方
 
 PCで試す場合は `index.html` をブラウザで開きます。

@@ -314,6 +314,46 @@
       display: none;
     }
 
+    .intro-panel {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      background: #fffdfa;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro-copy {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .intro-copy strong {
+      font-size: clamp(18px, 2.4vw, 28px);
+      line-height: 1.18;
+    }
+
+    .intro-copy p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .intro-actions,
+    .feedback-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
     .button-row {
       display: flex;
       flex-wrap: wrap;
@@ -511,6 +551,36 @@
       align-content: start;
     }
 
+    .feedback-list {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .feedback-list li {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    .feedback-list span {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
     .empty-state {
       display: grid;
       place-items: center;
@@ -578,6 +648,20 @@
         padding: 10px 10px 18px;
       }
 
+      .intro-panel {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 14px;
+        box-shadow: none;
+      }
+
+      .intro-actions,
+      .feedback-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-content: stretch;
+      }
+
       .planner,
       .results {
         gap: 10px;
@@ -632,7 +716,7 @@
         bottom: 0;
         z-index: 50;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 116px;
+        grid-template-columns: minmax(0, 1fr) 102px 102px;
         gap: 8px;
         padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
         background: rgba(244, 240, 232, 0.94);
@@ -730,6 +814,17 @@
     </header>
 
     <div class="layout">
+      <section class="intro-panel" aria-label="テスター向け案内">
+        <div class="intro-copy">
+          <strong>到着時間から、準備を始める時刻を逆算します。</strong>
+          <p>シャワー、メイク、ヘアセット、ジム、移動時間を入れて、今日は何時から動けばいいかをスマホで確認できます。</p>
+        </div>
+        <div class="intro-actions">
+          <button class="primary-button" id="copyPublicUrl" type="button">URLコピー</button>
+          <button class="secondary-button" id="openFeedbackTop" type="button">感想を送る</button>
+        </div>
+      </section>
+
       <aside class="planner" aria-label="入力">
         <section class="section">
           <div class="section-header">
@@ -894,12 +989,30 @@
             </div>
           </div>
         </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>テスターへのお願い</h2>
+          </div>
+          <div class="section-body">
+            <ul class="feedback-list">
+              <li><span>1</span><div>何のアプリか一瞬で分かったか</div></li>
+              <li><span>2</span><div>自分の外出前ルーティンを入れたいと思ったか</div></li>
+              <li><span>3</span><div>通知やカレンダー連携なら使いたいか</div></li>
+            </ul>
+            <div class="feedback-actions">
+              <button class="primary-button" id="openFeedback" type="button">感想を送る</button>
+              <button class="secondary-button" id="copyPublicUrlBottom" type="button">URLコピー</button>
+            </div>
+          </div>
+        </section>
       </section>
     </div>
 
     <nav class="mobile-dock" aria-label="スマホ操作">
       <button class="primary-button" id="calculateMobile" type="button">逆算する</button>
       <button class="secondary-button" id="copyShareMobile" type="button">共有</button>
+      <button class="secondary-button" id="openFeedbackMobile" type="button">感想</button>
     </nav>
   </main>
 
@@ -907,6 +1020,8 @@
 
   <script>
     const STORAGE_KEY = "startline-mvp-state";
+    const PUBLIC_URL = "https://lilyprime.github.io/startline-mvp/";
+    const FEEDBACK_URL = "https://github.com/LILYPRIME/startline-mvp/issues/new?template=feedback.yml";
 
     const demoState = {
       arrivalTime: "08:30",
@@ -967,6 +1082,11 @@
       sharePreview: document.querySelector("#sharePreview"),
       copyShare: document.querySelector("#copyShare"),
       copyShareMobile: document.querySelector("#copyShareMobile"),
+      copyPublicUrl: document.querySelector("#copyPublicUrl"),
+      copyPublicUrlBottom: document.querySelector("#copyPublicUrlBottom"),
+      openFeedback: document.querySelector("#openFeedback"),
+      openFeedbackTop: document.querySelector("#openFeedbackTop"),
+      openFeedbackMobile: document.querySelector("#openFeedbackMobile"),
       shareNative: document.querySelector("#shareNative"),
       toast: document.querySelector("#toast")
     };
@@ -1076,6 +1196,18 @@
       els.copyShareMobile.addEventListener("click", async () => {
         if (!lastShareText) calculatePlan();
         await copyText(lastShareText);
+      });
+
+      [els.copyPublicUrl, els.copyPublicUrlBottom].forEach((button) => {
+        button.addEventListener("click", async () => {
+          await copyText(PUBLIC_URL);
+        });
+      });
+
+      [els.openFeedback, els.openFeedbackTop, els.openFeedbackMobile].forEach((button) => {
+        button.addEventListener("click", () => {
+          window.open(FEEDBACK_URL, "_blank", "noopener");
+        });
       });
 
       els.shareNative.addEventListener("click", async () => {
@@ -1376,7 +1508,7 @@
         <strong>今日は ${formatMinutes(finalStart)} に人間開始</strong>
         <p>${state.eventName} / ${formatMinutes(leaveBy)}に家を出る / ${optionalText} / ${marginText}</p>
       `;
-      lastShareText = `今日は${formatMinutes(finalStart)}に人間開始。\n${state.eventName}は${state.arrivalTime}、${formatMinutes(leaveBy)}に家を出る。\n${optionalText}。${marginText}。\n#StartLine #出発逆算`;
+      lastShareText = `今日は${formatMinutes(finalStart)}に人間開始。\n${state.eventName}は${state.arrivalTime}、${formatMinutes(leaveBy)}に家を出る。\n${optionalText}。${marginText}。\n${PUBLIC_URL}\n#StartLine #出発逆算`;
     }
 
     function persistState() {

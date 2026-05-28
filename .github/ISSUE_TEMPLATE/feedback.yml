@@ -1,0 +1,39 @@
+name: StartLine MVP feedback
+description: StartLine MVPへの感想
+title: "Feedback: "
+labels:
+  - feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        触ってくれてありがとうございます。短くて大丈夫です。
+  - type: textarea
+    id: understood
+    attributes:
+      label: 何のアプリか一瞬で分かりましたか？
+      description: 分かった/分からなかった、どちらでもOKです。
+    validations:
+      required: true
+  - type: textarea
+    id: routine
+    attributes:
+      label: 自分の外出前ルーティンを入れたいと思いましたか？
+      description: 入れたい項目があれば書いてください。
+    validations:
+      required: true
+  - type: textarea
+    id: paid
+    attributes:
+      label: 通知・カレンダー連携・交通情報があれば使いたいですか？
+      description: 月300円なら払う可能性があるかも教えてください。
+    validations:
+      required: false
+  - type: textarea
+    id: confusing
+    attributes:
+      label: 分かりにくかったところ
+      description: 画面、言葉、操作、どこでもOKです。
+    validations:
+      required: false
+
