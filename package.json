@@ -6,6 +6,7 @@
   "scripts": {
     "auto-backup": "powershell -ExecutionPolicy Bypass -File ./scripts/auto-backup.ps1",
     "auto-backup:once": "powershell -ExecutionPolicy Bypass -File ./scripts/auto-backup.ps1 -Once",
+    "publish-pages": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-pages.ps1",
     "backup": "powershell -ExecutionPolicy Bypass -File ./scripts/backup-version.ps1",
     "backup:patch": "powershell -ExecutionPolicy Bypass -File ./scripts/backup-version.ps1 -Bump patch",
     "backup:minor": "powershell -ExecutionPolicy Bypass -File ./scripts/backup-version.ps1 -Bump minor",

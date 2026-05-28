@@ -23,6 +23,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\auto-backup.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\auto-backup.ps1 -Once
 ```
 
+公開ブランチだけ更新する:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\publish-pages.ps1
+```
+
 バージョンを上げてバックアップする:
 
 ```powershell
