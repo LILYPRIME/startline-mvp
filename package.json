@@ -1,6 +1,6 @@
 {
   "name": "startline-mvp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "StartLine MVP: departure prep reverse planner",
   "scripts": {
@@ -13,4 +13,3 @@
     "backup:major": "powershell -ExecutionPolicy Bypass -File ./scripts/backup-version.ps1 -Bump major"
   }
 }
-
