@@ -2,6 +2,10 @@
 
 出発前の準備、任意タスク、移動時間、到着バッファをまとめて逆算するスマホ前提のMVPです。
 
+公開URL:
+
+https://lilyprime.github.io/startline-mvp/
+
 ## 開き方
 
 PCで試す場合は `index.html` をブラウザで開きます。
@@ -28,6 +32,8 @@ PCで試す場合は `index.html` をブラウザで開きます。
 ## GitHubバックアップ
 
 GitHub同期とバージョン更新の運用は [GITHUB_SYNC.md](./GITHUB_SYNC.md) にまとめています。
+
+公開URLの運用は [PUBLIC_URL.md](./PUBLIC_URL.md) にまとめています。
 
 バージョン更新とバックアップを同時に行う:
 

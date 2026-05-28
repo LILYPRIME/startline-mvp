@@ -5,6 +5,10 @@
 このMVPは `departure-planner-mvp` 単体をGitHubに同期する。  
 `Playground` 全体には他の実験ファイルが多いため、MVPだけを独立したGitリポジトリとして扱う。
 
+現在の公開URL:
+
+https://lilyprime.github.io/startline-mvp/
+
 ## 使うコマンド
 
 変更を見張ってGitHubへ自動バックアップする:
