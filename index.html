@@ -1347,7 +1347,7 @@
         <span class="tab-icon" aria-hidden="true">⌂</span>
         <span>ホーム</span>
       </button>
-      <button class="tab-button" type="button" data-page-target="setup">
+      <button class="tab-button" type="button" data-page-target="design">
         <span class="tab-icon" aria-hidden="true">＋</span>
         <span>設計</span>
       </button>
@@ -1570,7 +1570,7 @@
     function setActivePage(page) {
       if (!page) return;
       syncStateFromInputs();
-      if (page === "puzzle" || page === "share") {
+      if (page === "design" || page === "settings") {
         calculatePlan();
       }
       els.appPages.forEach((section) => {

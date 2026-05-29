@@ -1,7 +1,7 @@
 {
     "name":  "StartLine",
     "short_name":  "StartLine",
-    "version":  "0.1.3",
+    "version":  "0.1.4",
     "description":  "出発前の準備時間を逆算するスマホMVP",
     "start_url":  "./index.html",
     "display":  "standalone",
