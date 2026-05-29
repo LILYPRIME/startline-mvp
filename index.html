@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#010102">
-  <meta name="app-version" content="0.1.3">
+  <meta name="app-version" content="0.1.4">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="StartLine">
   <link rel="manifest" href="./manifest.webmanifest">
@@ -168,8 +168,16 @@
 
     .planner,
     .results,
-    .share-page {
+    .design-page,
+    .settings-page,
+    .blank-page {
       min-width: 0;
+    }
+
+    .design-page {
+      grid-template-columns: minmax(330px, 420px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
     }
 
     .planner {
@@ -185,10 +193,14 @@
       min-height: calc(100vh - 96px);
     }
 
-    .share-page {
+    .settings-page {
       display: grid;
       gap: 10px;
       align-content: start;
+      min-height: calc(100vh - 180px);
+    }
+
+    .blank-page {
       min-height: calc(100vh - 180px);
     }
 
@@ -888,6 +900,10 @@
         grid-template-columns: 1fr;
       }
 
+      .design-page {
+        grid-template-columns: 1fr;
+      }
+
       .results {
         min-height: auto;
       }
@@ -957,7 +973,8 @@
       }
 
       .planner,
-      .results {
+      .results,
+      .settings-page {
         gap: 12px;
       }
 
@@ -1094,7 +1111,7 @@
         </div>
       </div>
       <div class="top-actions">
-        <div class="status-pill" id="versionPill">v0.1.3</div>
+        <div class="status-pill" id="versionPill">v0.1.4</div>
         <div class="status-pill" id="saveStatus">未保存の変更なし</div>
         <button class="secondary-button" id="resetDemo" type="button">デモに戻す</button>
       </div>
@@ -1134,7 +1151,8 @@
         </div>
       </section>
 
-      <aside class="planner app-page" data-page="setup" aria-label="入力">
+      <section class="design-page app-page" data-page="design" aria-label="設計">
+      <aside class="planner" aria-label="入力">
         <section class="section">
           <div class="section-header">
             <h2>予定</h2>
@@ -1234,7 +1252,7 @@
         </section>
       </aside>
 
-      <section class="results app-page" data-page="puzzle" aria-label="時間パズル">
+      <section class="results" aria-label="時間パズル">
         <section class="section">
           <div class="section-header">
             <h2>今日の開始ライン</h2>
@@ -1283,7 +1301,9 @@
         </section>
       </section>
 
-      <section class="share-page app-page" data-page="share" aria-label="共有">
+      </section>
+
+      <section class="settings-page app-page" data-page="settings" aria-label="設定">
         <section class="section">
           <div class="section-header">
             <h2>SNS共有</h2>
@@ -1318,6 +1338,8 @@
           </div>
         </section>
       </section>
+
+      <section class="blank-page app-page" data-page="blank" aria-label="空白"></section>
     </div>
 
     <nav class="mobile-dock" aria-label="画面切り替え">
@@ -1327,15 +1349,15 @@
       </button>
       <button class="tab-button" type="button" data-page-target="setup">
         <span class="tab-icon" aria-hidden="true">＋</span>
-        <span>入力</span>
+        <span>設計</span>
       </button>
-      <button class="tab-button" type="button" data-page-target="puzzle">
-        <span class="tab-icon" aria-hidden="true">▦</span>
-        <span>パズル</span>
+      <button class="tab-button" type="button" data-page-target="settings">
+        <span class="tab-icon" aria-hidden="true">⚙</span>
+        <span>設定</span>
       </button>
-      <button class="tab-button" type="button" data-page-target="share">
-        <span class="tab-icon" aria-hidden="true">↗</span>
-        <span>共有</span>
+      <button class="tab-button" type="button" data-page-target="blank" aria-label="空白">
+        <span class="tab-icon" aria-hidden="true"></span>
+        <span aria-hidden="true">&nbsp;</span>
       </button>
     </nav>
   </main>
