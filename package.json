@@ -1,6 +1,6 @@
 {
   "name": "startline-mvp",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "StartLine MVP: departure prep reverse planner",
   "scripts": {

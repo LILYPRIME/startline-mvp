@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#010102">
-  <meta name="app-version" content="0.1.4">
+  <meta name="app-version" content="0.1.5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="StartLine">
   <link rel="manifest" href="./manifest.webmanifest">
@@ -40,6 +40,7 @@
     body {
       margin: 0;
       min-height: 100vh;
+      overflow: hidden;
       background:
         radial-gradient(circle at top left, rgba(94, 106, 210, 0.16), transparent 30vw),
         linear-gradient(180deg, #010102 0%, #08090b 52%, #010102 100%);
@@ -141,8 +142,11 @@
       grid-template-columns: minmax(0, 1fr);
       gap: 16px;
       width: min(1040px, 100%);
+      height: calc(100dvh - 164px);
+      min-height: 0;
       margin: 0 auto;
       padding: 18px clamp(12px, 2vw, 28px) 30px;
+      overflow: hidden;
     }
 
     .app-page {
@@ -152,6 +156,9 @@
 
     .app-page.is-active {
       display: grid !important;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
       animation: pageIn 180ms ease both;
     }
 
@@ -169,21 +176,23 @@
     .planner,
     .results,
     .design-page,
+    .startline-page,
+    .puzzle-page,
     .settings-page,
     .blank-page {
       min-width: 0;
     }
 
     .design-page {
-      grid-template-columns: minmax(330px, 420px) minmax(0, 1fr);
-      gap: 16px;
-      align-items: start;
+      align-content: start;
     }
 
     .planner {
       display: grid;
       gap: 10px;
       align-content: start;
+      overflow: auto;
+      padding-right: 2px;
     }
 
     .results {
@@ -193,15 +202,108 @@
       min-height: calc(100vh - 96px);
     }
 
+    .startline-page {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .puzzle-page {
+      display: grid;
+      min-height: 0;
+    }
+
     .settings-page {
       display: grid;
       gap: 10px;
       align-content: start;
-      min-height: calc(100vh - 180px);
+      overflow: hidden;
     }
 
     .blank-page {
-      min-height: calc(100vh - 180px);
+      min-height: 0;
+    }
+
+    .design-board {
+      display: grid;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .design-hero {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(94, 106, 210, 0.14), rgba(15, 16, 17, 0.96)),
+        var(--panel);
+      overflow: hidden;
+    }
+
+    .design-hero span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .design-hero strong {
+      font-size: clamp(28px, 7vw, 48px);
+      line-height: 1.05;
+    }
+
+    .design-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .route-button {
+      display: grid;
+      align-content: space-between;
+      min-height: 130px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--ink);
+      text-align: left;
+      transition: 160ms ease;
+    }
+
+    .route-button:hover {
+      border-color: var(--line-strong);
+      background: var(--panel-2);
+      transform: translateY(-1px);
+    }
+
+    .route-button strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .route-button span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .route-token {
+      justify-self: start;
+      display: inline-grid;
+      place-items: center;
+      min-width: 28px;
+      height: 28px;
+      margin-top: 12px;
+      border-radius: 8px;
+      background: var(--green-soft);
+      color: #dfe3ff;
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .section {
@@ -379,6 +481,22 @@
       background: #828fff;
     }
 
+    .mini-button {
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .mini-button:hover {
+      border-color: var(--line-strong);
+      background: var(--panel-2);
+    }
+
     .mobile-dock {
       position: fixed;
       left: 50%;
@@ -388,7 +506,7 @@
       width: min(100%, 620px);
       transform: translateX(-50%);
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 6px;
       padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
       background: rgba(1, 1, 2, 0.9);
@@ -660,12 +778,16 @@
 
     .timeline-wrap {
       display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
       min-height: 0;
     }
 
     .timeline {
       display: grid;
+      align-content: start;
       gap: 8px;
+      min-height: 0;
+      overflow: auto;
       position: relative;
       padding: 18px 16px 18px;
       background:
@@ -946,10 +1068,12 @@
 
       .layout {
         gap: 12px;
+        height: calc(100dvh - 148px);
         padding: 10px 10px 20px;
       }
 
-      .intro-panel {
+      .intro-panel,
+      .design-board {
         grid-template-columns: 1fr;
         gap: 14px;
         padding: 12px;
@@ -974,6 +1098,7 @@
 
       .planner,
       .results,
+      .startline-page,
       .settings-page {
         gap: 12px;
       }
@@ -1023,13 +1148,14 @@
 
       .mobile-dock {
         width: 100%;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
         padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
       }
 
       .tab-button {
-        min-height: 58px;
+        min-height: 56px;
+        font-size: 10px;
       }
 
       .task-row,
@@ -1111,7 +1237,7 @@
         </div>
       </div>
       <div class="top-actions">
-        <div class="status-pill" id="versionPill">v0.1.4</div>
+        <div class="status-pill" id="versionPill">v0.1.5</div>
         <div class="status-pill" id="saveStatus">未保存の変更なし</div>
         <button class="secondary-button" id="resetDemo" type="button">デモに戻す</button>
       </div>
@@ -1152,10 +1278,36 @@
       </section>
 
       <section class="design-page app-page" data-page="design" aria-label="設計">
-      <aside class="planner" aria-label="入力">
+        <div class="design-board">
+          <div class="design-hero">
+            <span>設計</span>
+            <strong>外出前の時間を組み立てる</strong>
+            <p>予定、準備、移動、余白を別ページで編集して、必要なときだけ時間パズルを開きます。</p>
+          </div>
+          <div class="design-grid">
+            <button class="route-button" type="button" data-page-jump="tasks">
+              <div>
+                <strong>予定とタスク</strong>
+                <span>到着時刻、移動、ルーティン、任意タスクを編集します。</span>
+              </div>
+              <span class="route-token">＋</span>
+            </button>
+            <button class="route-button" type="button" data-page-jump="puzzle">
+              <div>
+                <strong>時間パズル</strong>
+                <span>空きスロットと準備ブロックを見ながら組みます。</span>
+              </div>
+              <span class="route-token">▦</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="planner app-page" data-page="tasks" aria-label="予定とタスク">
         <section class="section">
           <div class="section-header">
             <h2>予定</h2>
+            <button class="mini-button" type="button" data-page-jump="design">戻る</button>
           </div>
           <div class="section-body">
             <div class="form-grid">
@@ -1252,7 +1404,7 @@
         </section>
       </aside>
 
-      <section class="results" aria-label="時間パズル">
+      <section class="startline-page app-page" data-page="startline" aria-label="今日の開始ライン">
         <section class="section">
           <div class="section-header">
             <h2>今日の開始ライン</h2>
@@ -1290,17 +1442,18 @@
           </div>
           <div class="decision-badge" id="decisionBadge">READY</div>
         </section>
+      </section>
 
+      <section class="puzzle-page app-page" data-page="puzzle" aria-label="時間パズル">
         <section class="section timeline-wrap">
           <div class="section-header">
             <h2>時間パズル</h2>
+            <button class="mini-button" type="button" data-page-jump="design">戻る</button>
           </div>
           <div class="timeline" id="timeline">
             <div class="empty-state">逆算すると、ここに時間ブロックがはまります。</div>
           </div>
         </section>
-      </section>
-
       </section>
 
       <section class="settings-page app-page" data-page="settings" aria-label="設定">
@@ -1348,11 +1501,15 @@
         <span>ホーム</span>
       </button>
       <button class="tab-button" type="button" data-page-target="design">
-        <span class="tab-icon" aria-hidden="true">＋</span>
+        <span class="tab-icon" aria-hidden="true">設</span>
         <span>設計</span>
       </button>
+      <button class="tab-button" type="button" data-page-target="startline" aria-label="今日の開始ライン">
+        <span class="tab-icon" aria-hidden="true">始</span>
+        <span>開始</span>
+      </button>
       <button class="tab-button" type="button" data-page-target="settings">
-        <span class="tab-icon" aria-hidden="true">⚙</span>
+        <span class="tab-icon" aria-hidden="true">調</span>
         <span>設定</span>
       </button>
       <button class="tab-button" type="button" data-page-target="blank" aria-label="空白">
@@ -1403,6 +1560,7 @@
       travelMode: document.querySelector("#travelMode"),
       appPages: document.querySelectorAll(".app-page"),
       navTabs: document.querySelectorAll("[data-page-target]"),
+      pageJumps: document.querySelectorAll("[data-page-jump]"),
       earliestStart: document.querySelector("#earliestStart"),
       minimumMargin: document.querySelector("#minimumMargin"),
       requiredTasks: document.querySelector("#requiredTasks"),
@@ -1521,6 +1679,12 @@
         });
       });
 
+      els.pageJumps.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActivePage(button.dataset.pageJump);
+        });
+      });
+
       els.saveTemplate.addEventListener("click", () => {
         persistState();
         showToast("ルーティンを保存しました");
@@ -1570,14 +1734,15 @@
     function setActivePage(page) {
       if (!page) return;
       syncStateFromInputs();
-      if (page === "design" || page === "settings") {
+      if (["design", "tasks", "startline", "puzzle", "settings"].includes(page)) {
         calculatePlan();
       }
       els.appPages.forEach((section) => {
         section.classList.toggle("is-active", section.dataset.page === page);
       });
+      const activeNavPage = page === "tasks" || page === "puzzle" ? "design" : page;
       els.navTabs.forEach((button) => {
-        const isActive = button.dataset.pageTarget === page;
+        const isActive = button.dataset.pageTarget === activeNavPage;
         button.classList.toggle("is-active", isActive);
         if (isActive) {
           button.setAttribute("aria-current", "page");
