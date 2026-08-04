@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#010102">
+  <meta name="app-version" content="0.1.6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="StartLine">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <title>StartLine MVP</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f8f8;
+      --muted: #a9afb9;
+      --soft: #0b0c0e;
+      --panel: #0f1011;
+      --panel-2: #141516;
+      --panel-3: #18191a;
+      --line: #23252a;
+      --line-strong: #34343a;
+      --green: #5e6ad2;
+      --green-soft: rgba(94, 106, 210, 0.16);
+      --red: #ff6b6b;
+      --red-soft: rgba(255, 107, 107, 0.12);
+      --blue: #828fff;
+      --blue-soft: rgba(94, 106, 210, 0.16);
+      --yellow: #d8b96d;
+      --yellow-soft: rgba(216, 185, 109, 0.12);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+      font-family: Inter, "SF Pro Display", "Noto Sans JP", "Yu Gothic UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      background:
+        radial-gradient(circle at top left, rgba(94, 106, 210, 0.16), transparent 30vw),
+        linear-gradient(180deg, #010102 0%, #08090b 52%, #010102 100%);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      height: 100dvh;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px clamp(16px, 3vw, 36px);
+      background: rgba(1, 1, 2, 0.82);
+      border-bottom: 1px solid rgba(52, 52, 58, 0.72);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(130, 143, 255, 0.42);
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(94, 106, 210, 0.9), rgba(94, 106, 210, 0.28));
+      color: white;
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 12px 30px rgba(94, 106, 210, 0.24);
+    }
+
+    .brand-name {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .brand-name strong {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .brand-name span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(15, 16, 17, 0.72);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      width: min(1040px, 100%);
+      height: 100%;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 18px clamp(12px, 2vw, 28px) calc(92px + env(safe-area-inset-bottom));
+      overflow: hidden;
+    }
+
+    .app-page {
+      display: none !important;
+      min-width: 0;
+    }
+
+    .app-page.is-active {
+      display: grid !important;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      animation: pageIn 180ms ease both;
+    }
+
+    .app-page[data-page="home"],
+    .app-page[data-page="design"],
+    .app-page[data-page="startline"],
+    .app-page[data-page="settings"],
+    .app-page[data-page="blank"] {
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .planner,
+    .results,
+    .design-page,
+    .startline-page,
+    .puzzle-page,
+    .settings-page,
+    .blank-page {
+      min-width: 0;
+    }
+
+    .design-page {
+      align-content: start;
+    }
+
+    .planner {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .results {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      min-height: calc(100vh - 96px);
+    }
+
+    .startline-page {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .puzzle-page {
+      display: grid;
+      min-height: 0;
+    }
+
+    .settings-page {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      overflow: hidden;
+    }
+
+    .blank-page {
+      min-height: 0;
+    }
+
+    .design-board {
+      display: grid;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .design-hero {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(94, 106, 210, 0.14), rgba(15, 16, 17, 0.96)),
+        var(--panel);
+      overflow: hidden;
+    }
+
+    .design-hero span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .design-hero strong {
+      font-size: clamp(28px, 7vw, 48px);
+      line-height: 1.05;
+    }
+
+    .design-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .route-button {
+      display: grid;
+      align-content: space-between;
+      min-height: 130px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--ink);
+      text-align: left;
+      transition: 160ms ease;
+    }
+
+    .route-button:hover {
+      border-color: var(--line-strong);
+      background: var(--panel-2);
+      transform: translateY(-1px);
+    }
+
+    .route-button strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .route-button span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .route-token {
+      justify-self: start;
+      display: inline-grid;
+      place-items: center;
+      min-width: 28px;
+      height: 28px;
+      margin-top: 12px;
+      border-radius: 8px;
+      background: var(--green-soft);
+      color: #dfe3ff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px 11px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(20, 21, 22, 0.72);
+    }
+
+    .section-header h2,
+    .section-header h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .section-body {
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #d0d6e0;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #141516;
+      color: var(--ink);
+      padding: 9px 12px;
+      outline: 0;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.55;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.24);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .chip {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #0f1011;
+      color: #d0d6e0;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .chip[aria-pressed="true"] {
+      border-color: rgba(130, 143, 255, 0.72);
+      background: var(--green-soft);
+      color: #f7f8f8;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 82px 42px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .task-row.compact {
+      grid-template-columns: minmax(0, 1fr) 82px 92px 42px;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #141516;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .icon-button:hover {
+      border-color: var(--line-strong);
+      background: #18191a;
+    }
+
+    .secondary-button,
+    .primary-button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 650;
+      transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+    }
+
+    .secondary-button {
+      border: 1px solid var(--line);
+      background: #0f1011;
+      color: var(--ink);
+    }
+
+    .primary-button {
+      background: var(--green);
+      color: white;
+      box-shadow: 0 12px 32px rgba(94, 106, 210, 0.24);
+    }
+
+    .secondary-button:hover,
+    .primary-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .secondary-button:hover {
+      border-color: var(--line-strong);
+      background: #18191a;
+    }
+
+    .primary-button:hover {
+      background: #828fff;
+    }
+
+    .mini-button {
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .mini-button:hover {
+      border-color: var(--line-strong);
+      background: var(--panel-2);
+    }
+
+    .mobile-dock {
+      position: fixed;
+      left: 50%;
+      right: auto;
+      bottom: 0;
+      z-index: 50;
+      width: min(100%, 620px);
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(1, 1, 2, 0.9);
+      border: 1px solid rgba(52, 52, 58, 0.86);
+      border-bottom: 0;
+      border-radius: 18px 18px 0 0;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.42);
+    }
+
+    .tab-button {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+      transition: 160ms ease;
+    }
+
+    .tab-button:hover {
+      background: rgba(20, 21, 22, 0.86);
+      color: var(--ink);
+    }
+
+    .tab-button.is-active {
+      border-color: rgba(130, 143, 255, 0.34);
+      background: rgba(94, 106, 210, 0.16);
+      color: var(--ink);
+    }
+
+    .tab-icon {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: inherit;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .intro-panel {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(320px, 0.58fr);
+      gap: 16px;
+      align-items: stretch;
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(20, 21, 22, 0.92), rgba(15, 16, 17, 0.96));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro-copy {
+      display: grid;
+      align-content: center;
+      gap: 14px;
+      min-width: 0;
+      padding: 8px 8px 8px 4px;
+    }
+
+    .intro-copy strong {
+      max-width: 680px;
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 650;
+      line-height: 1.08;
+    }
+
+    .intro-copy p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .intro-kicker {
+      width: fit-content;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #dfe3ff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .intro-actions,
+    .feedback-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+
+    .demo-card {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #18191a, #0f1011);
+      color: var(--ink);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .demo-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      color: #aeb5ff;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .demo-card-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .demo-card-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .demo-card-title strong {
+      font-size: clamp(52px, 7vw, 84px);
+      line-height: 0.95;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .demo-rows {
+      display: grid;
+      gap: 8px;
+    }
+
+    .demo-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 44px;
+      padding: 12px 14px;
+      border: 1px solid rgba(52, 52, 58, 0.78);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .demo-row span {
+      color: #d0d6e0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .demo-row strong {
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .demo-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 110px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #141516;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .metric strong {
+      font-size: clamp(24px, 3vw, 42px);
+      line-height: 1;
+      word-break: keep-all;
+    }
+
+    .metric small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #141516;
+    }
+
+    .decision.good {
+      border-color: #b9d7c8;
+      background: var(--green-soft);
+    }
+
+    .decision.tight {
+      border-color: #e5cd8a;
+      background: var(--yellow-soft);
+    }
+
+    .decision.bad {
+      border-color: #e2b3ad;
+      background: var(--red-soft);
+    }
+
+    .decision strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+    }
+
+    .decision p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .decision-badge {
+      min-width: 86px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .timeline-wrap {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .timeline {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+      padding: 18px 16px 18px;
+      background:
+        linear-gradient(90deg, rgba(94, 106, 210, 0.08) 0 1px, transparent 1px 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+      background-size: 100% 36px, auto;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      bottom: 18px;
+      left: 106px;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(130, 143, 255, 0.72), transparent);
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 74px 18px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: var(--block-height, 58px);
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #18191a, #111214);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .timeline-item:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+    }
+
+    .timeline-item.optional {
+      background: linear-gradient(180deg, rgba(94, 106, 210, 0.2), rgba(17, 18, 20, 0.96));
+    }
+
+    .timeline-item.travel {
+      background: linear-gradient(180deg, rgba(216, 185, 109, 0.16), rgba(17, 18, 20, 0.96));
+    }
+
+    .timeline-item.deadline {
+      background: linear-gradient(180deg, rgba(255, 107, 107, 0.14), rgba(17, 18, 20, 0.96));
+    }
+
+    .timeline-item.free {
+      border-style: dashed;
+      background: rgba(94, 106, 210, 0.08);
+    }
+
+    .timeline-item.shortage {
+      border-color: rgba(255, 107, 107, 0.62);
+      background: rgba(255, 107, 107, 0.12);
+    }
+
+    .time {
+      font-variant-numeric: tabular-nums;
+      color: #f7f8f8;
+      font-size: 20px;
+      font-weight: 750;
+    }
+
+    .puzzle-node {
+      width: 14px;
+      height: 14px;
+      position: relative;
+      z-index: 1;
+      border: 2px solid #828fff;
+      border-radius: 50%;
+      background: #010102;
+      box-shadow: 0 0 0 5px rgba(94, 106, 210, 0.13);
+    }
+
+    .timeline-item.free .puzzle-node {
+      border-color: #8a8f98;
+      box-shadow: 0 0 0 5px rgba(138, 143, 152, 0.1);
+    }
+
+    .timeline-item.shortage .puzzle-node {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 5px rgba(255, 107, 107, 0.12);
+    }
+
+    .timeline-main {
+      min-width: 0;
+    }
+
+    .timeline-item h4 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .duration {
+      min-width: 58px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .timeline-item.free .duration {
+      color: #d0d6e0;
+      background: rgba(138, 143, 152, 0.12);
+    }
+
+    .timeline-item.shortage .duration {
+      color: #ffd8d8;
+      background: rgba(255, 107, 107, 0.16);
+    }
+
+    .share-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 144px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .share-card {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(180deg, #18191a, #0f1011);
+      color: var(--ink);
+    }
+
+    .share-card span {
+      color: #aeb5ff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .share-card strong {
+      font-size: clamp(24px, 4vw, 48px);
+      line-height: 1.05;
+    }
+
+    .share-card p {
+      margin: 0;
+      color: #d0d6e0;
+      line-height: 1.5;
+    }
+
+    .share-actions {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .feedback-list {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .feedback-list li {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    .feedback-list span {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: #dfe3ff;
+      font-weight: 650;
+      font-size: 12px;
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      padding: 24px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 160ms ease;
+      padding: 11px 14px;
+      border-radius: 8px;
+      background: #f7f8f8;
+      color: white;
+      color: #010102;
+      box-shadow: var(--shadow);
+      font-weight: 650;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .design-page {
+        grid-template-columns: 1fr;
+      }
+
+      .results {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        background:
+          radial-gradient(circle at top left, rgba(94, 106, 210, 0.2), transparent 70vw),
+          #010102;
+      }
+
+      .app-shell {
+        padding-bottom: 0;
+      }
+
+      .topbar {
+        align-items: center;
+        flex-direction: row;
+        position: static;
+        gap: 10px;
+        padding: 12px 14px 8px;
+      }
+
+      .top-actions {
+        flex: 0 0 auto;
+        justify-content: flex-end;
+      }
+
+      .top-actions .status-pill {
+        display: none;
+      }
+
+      .top-actions .secondary-button {
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .layout {
+        gap: 12px;
+        height: 100%;
+        padding: 10px 10px calc(92px + env(safe-area-inset-bottom));
+      }
+
+      .intro-panel,
+      .design-board {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 12px;
+        box-shadow: none;
+      }
+
+      .intro-actions,
+      .feedback-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-content: stretch;
+      }
+
+      .demo-card {
+        order: -1;
+        padding: 16px;
+      }
+
+      .demo-card-title strong {
+        font-size: 56px;
+      }
+
+      .planner,
+      .results,
+      .startline-page,
+      .settings-page {
+        gap: 12px;
+      }
+
+      .section {
+        border-radius: 12px;
+        box-shadow: none;
+      }
+
+      .section-header {
+        padding: 13px 14px 9px;
+      }
+
+      .section-body {
+        padding: 14px;
+      }
+
+      .form-grid,
+      .summary-grid,
+      .share-grid {
+        grid-template-columns: 1fr;
+      }
+
+      input,
+      select,
+      textarea,
+      .primary-button,
+      .secondary-button,
+      .icon-button,
+      .chip {
+        min-height: 48px;
+      }
+
+      .choice-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .chip {
+        border-radius: 8px;
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-dock {
+        width: 100%;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      }
+
+      .tab-button {
+        min-height: 56px;
+        font-size: 10px;
+      }
+
+      .task-row,
+      .task-row.compact {
+        grid-template-columns: minmax(0, 1fr) 72px 38px;
+      }
+
+      .task-row.compact label:nth-child(3) {
+        grid-column: 1 / 3;
+      }
+
+      .timeline-item {
+        grid-template-columns: 64px 16px minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .duration {
+        grid-column: 3;
+        justify-self: start;
+      }
+
+      .decision {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      .decision-badge {
+        justify-self: start;
+      }
+
+      .metric {
+        min-height: 86px;
+      }
+
+      .metric strong {
+        font-size: 34px;
+      }
+
+      .share-actions {
+        display: none;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .section-body,
+      .timeline {
+        padding: 12px;
+      }
+
+      .brand-name span,
+      .status-pill {
+        font-size: 11px;
+      }
+
+      .status-pill {
+        padding-inline: 9px;
+      }
+
+      .time {
+        font-size: 19px;
+      }
+
+      .task-row,
+      .task-row.compact {
+        grid-template-columns: minmax(0, 1fr) 70px 38px;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="StartLine">
+        <div class="brand-mark">SL</div>
+        <div class="brand-name">
+          <strong>StartLine</strong>
+          <span>外出前の逆算メモ</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="status-pill" id="versionPill">v0.1.6</div>
+        <div class="status-pill" id="saveStatus">未保存の変更なし</div>
+        <button class="secondary-button" id="resetDemo" type="button">デモに戻す</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="intro-panel app-page is-active" data-page="home" aria-label="ホーム">
+        <div class="intro-copy">
+          <div class="intro-kicker">公開MVP / テスター募集中</div>
+          <strong>明日の朝、何時に<br>人間開始する？</strong>
+          <p>到着時間、準備ルーティン、移動のゆらぎを入れると、シャワーやメイクを始める時間まで逆算します。</p>
+          <div class="intro-actions">
+            <button class="primary-button" id="copyPublicUrl" type="button">URLコピー</button>
+            <button class="secondary-button" id="openFeedbackTop" type="button">感想を送る</button>
+          </div>
+        </div>
+        <div class="demo-card" id="screenshotCard">
+          <div class="demo-card-top">
+            <span id="heroEvent">8:30 渋谷で朝ミーティング</span>
+            <span>StartLine</span>
+          </div>
+          <div class="demo-card-title">
+            <span>人間開始</span>
+            <strong id="heroStart">05:53</strong>
+          </div>
+          <div class="demo-rows">
+            <div class="demo-row">
+              <span>家を出る</span>
+              <strong id="heroLeave">07:28</strong>
+            </div>
+            <div class="demo-row">
+              <span>今日の判断</span>
+              <strong id="heroDecision">ジム見送り</strong>
+            </div>
+          </div>
+          <p class="demo-note">メイク35分、髪25分、移動ゆらぎ10分まで入れて逆算。</p>
+        </div>
+      </section>
+
+      <section class="design-page app-page" data-page="design" aria-label="設計">
+        <div class="design-board">
+          <div class="design-hero">
+            <span>設計</span>
+            <strong>外出前の時間を組み立てる</strong>
+            <p>予定、準備、移動、余白を別ページで編集して、必要なときだけ時間パズルを開きます。</p>
+          </div>
+          <div class="design-grid">
+            <button class="route-button" type="button" data-page-jump="tasks">
+              <div>
+                <strong>予定とタスク</strong>
+                <span>到着時刻、移動、ルーティン、任意タスクを編集します。</span>
+              </div>
+              <span class="route-token">＋</span>
+            </button>
+            <button class="route-button" type="button" data-page-jump="puzzle">
+              <div>
+                <strong>時間パズル</strong>
+                <span>空きスロットと準備ブロックを見ながら組みます。</span>
+              </div>
+              <span class="route-token">▦</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="planner app-page" data-page="tasks" aria-label="予定とタスク">
+        <section class="section">
+          <div class="section-header">
+            <h2>予定</h2>
+            <button class="mini-button" type="button" data-page-jump="design">戻る</button>
+          </div>
+          <div class="section-body">
+            <div class="form-grid">
+              <label>
+                到着時刻
+                <input id="arrivalTime" type="time" value="08:30">
+              </label>
+              <label>
+                到着バッファ
+                <select id="arrivalBuffer">
+                  <option value="0">なし</option>
+                  <option value="5">5分</option>
+                  <option value="10" selected>10分</option>
+                  <option value="15">15分</option>
+                  <option value="30">30分</option>
+                </select>
+              </label>
+              <label class="full">
+                予定名
+                <input id="eventName" type="text" value="渋谷で朝ミーティング" maxlength="42">
+              </label>
+              <label>
+                片道移動
+                <input id="travelMinutes" type="number" value="42" min="0" max="600" inputmode="numeric">
+              </label>
+              <label>
+                交通ゆらぎ
+                <select id="trafficBuffer">
+                  <option value="0">通常</option>
+                  <option value="10" selected>混みそう</option>
+                  <option value="20">かなり混む</option>
+                  <option value="40">空港・重要予定</option>
+                </select>
+              </label>
+              <label class="full">
+                交通手段
+                <div class="choice-row" id="travelMode">
+                  <button class="chip" type="button" data-value="電車" aria-pressed="true">電車</button>
+                  <button class="chip" type="button" data-value="車" aria-pressed="false">車</button>
+                  <button class="chip" type="button" data-value="徒歩" aria-pressed="false">徒歩</button>
+                  <button class="chip" type="button" data-value="飛行機" aria-pressed="false">飛行機</button>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h3>必須ルーティン</h3>
+            <button class="icon-button" id="addRequired" type="button" aria-label="必須ルーティンを追加" title="追加">+</button>
+          </div>
+          <div class="section-body">
+            <div class="task-list" id="requiredTasks"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h3>行けたらやる</h3>
+            <button class="icon-button" id="addOptional" type="button" aria-label="任意タスクを追加" title="追加">+</button>
+          </div>
+          <div class="section-body">
+            <div class="task-list" id="optionalTasks"></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h3>今日の制約</h3>
+          </div>
+          <div class="section-body">
+            <div class="form-grid">
+              <label>
+                逆算開始できる時刻
+                <input id="earliestStart" type="time" value="05:30">
+              </label>
+              <label>
+                最低余白
+                <select id="minimumMargin">
+                  <option value="0">なし</option>
+                  <option value="5">5分</option>
+                  <option value="10" selected>10分</option>
+                  <option value="20">20分</option>
+                  <option value="30">30分</option>
+                </select>
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" id="calculate" type="button">逆算する</button>
+              <button class="secondary-button" id="saveTemplate" type="button">ルーティン保存</button>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="startline-page app-page" data-page="startline" aria-label="今日の開始ライン">
+        <section class="section">
+          <div class="section-header">
+            <h2>今日の開始ライン</h2>
+          </div>
+          <div class="section-body">
+            <div class="summary-grid">
+              <div class="metric">
+                <span>人間開始</span>
+                <strong id="startTime">--:--</strong>
+                <small id="startDetail">ルーティンから逆算</small>
+              </div>
+              <div class="metric">
+                <span>家を出る</span>
+                <strong id="leaveTime">--:--</strong>
+                <small id="leaveDetail">交通ゆらぎ込み</small>
+              </div>
+              <div class="metric">
+                <span>準備合計</span>
+                <strong id="prepTotal">--</strong>
+                <small id="prepDetail">必須タスクのみ</small>
+              </div>
+              <div class="metric">
+                <span>自由余白</span>
+                <strong id="freeMargin">--</strong>
+                <small id="marginDetail">開始可能時刻との差</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="decision section" id="decisionBox">
+          <div>
+            <strong id="decisionTitle">逆算待ち</strong>
+            <p id="decisionText">到着時刻とルーティンを入れると、任意タスクを入れる余裕まで判定します。</p>
+          </div>
+          <div class="decision-badge" id="decisionBadge">READY</div>
+        </section>
+      </section>
+
+      <section class="puzzle-page app-page" data-page="puzzle" aria-label="時間パズル">
+        <section class="section timeline-wrap">
+          <div class="section-header">
+            <h2>時間パズル</h2>
+            <button class="mini-button" type="button" data-page-jump="design">戻る</button>
+          </div>
+          <div class="timeline" id="timeline">
+            <div class="empty-state">逆算すると、ここに時間ブロックがはまります。</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="settings-page app-page" data-page="settings" aria-label="設定">
+        <section class="section">
+          <div class="section-header">
+            <h2>SNS共有</h2>
+          </div>
+          <div class="section-body share-grid">
+            <div class="share-card" id="sharePreview">
+              <span>StartLine</span>
+              <strong>今日は --:-- に人間開始</strong>
+              <p>ジム判定と出発時刻を逆算中。</p>
+            </div>
+            <div class="share-actions">
+              <button class="primary-button" id="copyShare" type="button">共有文コピー</button>
+              <button class="secondary-button" id="shareNative" type="button">シェア</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>テスターへのお願い</h2>
+          </div>
+          <div class="section-body">
+            <ul class="feedback-list">
+              <li><span>1</span><div>何のアプリか一瞬で分かったか</div></li>
+              <li><span>2</span><div>自分の外出前ルーティンを入れたいと思ったか</div></li>
+              <li><span>3</span><div>通知やカレンダー連携なら使いたいか</div></li>
+            </ul>
+            <div class="feedback-actions">
+              <button class="primary-button" id="openFeedback" type="button">感想を送る</button>
+              <button class="secondary-button" id="copyPublicUrlBottom" type="button">URLコピー</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="blank-page app-page" data-page="blank" aria-label="空白"></section>
+    </div>
+
+    <nav class="mobile-dock" aria-label="画面切り替え">
+      <button class="tab-button is-active" type="button" data-page-target="home" aria-current="page">
+        <span class="tab-icon" aria-hidden="true">⌂</span>
+        <span>ホーム</span>
+      </button>
+      <button class="tab-button" type="button" data-page-target="design">
+        <span class="tab-icon" aria-hidden="true">設</span>
+        <span>設計</span>
+      </button>
+      <button class="tab-button" type="button" data-page-target="startline" aria-label="今日の開始ライン">
+        <span class="tab-icon" aria-hidden="true">始</span>
+        <span>開始</span>
+      </button>
+      <button class="tab-button" type="button" data-page-target="settings">
+        <span class="tab-icon" aria-hidden="true">調</span>
+        <span>設定</span>
+      </button>
+      <button class="tab-button" type="button" data-page-target="blank" aria-label="空白">
+        <span class="tab-icon" aria-hidden="true"></span>
+        <span aria-hidden="true">&nbsp;</span>
+      </button>
+    </nav>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "startline-mvp-state";
+    const PUBLIC_URL = "https://lilyprime.github.io/startline-mvp/";
+    const FEEDBACK_URL = "https://github.com/LILYPRIME/startline-mvp/issues/new?template=feedback.yml";
+
+    const demoState = {
+      arrivalTime: "08:30",
+      arrivalBuffer: 10,
+      eventName: "渋谷で朝ミーティング",
+      travelMinutes: 42,
+      trafficBuffer: 10,
+      travelMode: "電車",
+      earliestStart: "05:30",
+      minimumMargin: 10,
+      required: [
+        { name: "シャワー", minutes: 20 },
+        { name: "ヘアセット", minutes: 25 },
+        { name: "メイク", minutes: 35 },
+        { name: "着替えと荷物", minutes: 15 }
+      ],
+      optional: [
+        { name: "ジム", minutes: 60, priority: "高" },
+        { name: "朝食", minutes: 15, priority: "中" }
+      ]
+    };
+
+    const state = loadState();
+    let selectedTravelMode = state.travelMode || demoState.travelMode;
+    let lastShareText = "";
+
+    const els = {
+      arrivalTime: document.querySelector("#arrivalTime"),
+      arrivalBuffer: document.querySelector("#arrivalBuffer"),
+      eventName: document.querySelector("#eventName"),
+      travelMinutes: document.querySelector("#travelMinutes"),
+      trafficBuffer: document.querySelector("#trafficBuffer"),
+      travelMode: document.querySelector("#travelMode"),
+      appPages: document.querySelectorAll(".app-page"),
+      navTabs: document.querySelectorAll("[data-page-target]"),
+      pageJumps: document.querySelectorAll("[data-page-jump]"),
+      earliestStart: document.querySelector("#earliestStart"),
+      minimumMargin: document.querySelector("#minimumMargin"),
+      requiredTasks: document.querySelector("#requiredTasks"),
+      optionalTasks: document.querySelector("#optionalTasks"),
+      calculate: document.querySelector("#calculate"),
+      addRequired: document.querySelector("#addRequired"),
+      addOptional: document.querySelector("#addOptional"),
+      saveTemplate: document.querySelector("#saveTemplate"),
+      resetDemo: document.querySelector("#resetDemo"),
+      saveStatus: document.querySelector("#saveStatus"),
+      startTime: document.querySelector("#startTime"),
+      startDetail: document.querySelector("#startDetail"),
+      leaveTime: document.querySelector("#leaveTime"),
+      leaveDetail: document.querySelector("#leaveDetail"),
+      prepTotal: document.querySelector("#prepTotal"),
+      prepDetail: document.querySelector("#prepDetail"),
+      freeMargin: document.querySelector("#freeMargin"),
+      marginDetail: document.querySelector("#marginDetail"),
+      decisionBox: document.querySelector("#decisionBox"),
+      decisionTitle: document.querySelector("#decisionTitle"),
+      decisionText: document.querySelector("#decisionText"),
+      decisionBadge: document.querySelector("#decisionBadge"),
+      heroEvent: document.querySelector("#heroEvent"),
+      heroStart: document.querySelector("#heroStart"),
+      heroLeave: document.querySelector("#heroLeave"),
+      heroDecision: document.querySelector("#heroDecision"),
+      timeline: document.querySelector("#timeline"),
+      sharePreview: document.querySelector("#sharePreview"),
+      copyShare: document.querySelector("#copyShare"),
+      copyPublicUrl: document.querySelector("#copyPublicUrl"),
+      copyPublicUrlBottom: document.querySelector("#copyPublicUrlBottom"),
+      openFeedback: document.querySelector("#openFeedback"),
+      openFeedbackTop: document.querySelector("#openFeedbackTop"),
+      shareNative: document.querySelector("#shareNative"),
+      toast: document.querySelector("#toast")
+    };
+
+    hydrate();
+    renderTasks();
+    bindEvents();
+    calculatePlan();
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved || !Array.isArray(saved.required) || !Array.isArray(saved.optional)) {
+          return structuredClone(demoState);
+        }
+        return { ...structuredClone(demoState), ...saved };
+      } catch {
+        return structuredClone(demoState);
+      }
+    }
+
+    function hydrate() {
+      els.arrivalTime.value = state.arrivalTime;
+      els.arrivalBuffer.value = String(state.arrivalBuffer);
+      els.eventName.value = state.eventName;
+      els.travelMinutes.value = String(state.travelMinutes);
+      els.trafficBuffer.value = String(state.trafficBuffer);
+      els.earliestStart.value = state.earliestStart;
+      els.minimumMargin.value = String(state.minimumMargin);
+      updateTravelMode();
+    }
+
+    function bindEvents() {
+      [
+        els.arrivalTime,
+        els.arrivalBuffer,
+        els.eventName,
+        els.travelMinutes,
+        els.trafficBuffer,
+        els.earliestStart,
+        els.minimumMargin
+      ].forEach((input) => {
+        input.addEventListener("input", () => {
+          syncStateFromInputs();
+          calculatePlan();
+          markDirty();
+        });
+      });
+
+      els.travelMode.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-value]");
+        if (!button) return;
+        selectedTravelMode = button.dataset.value;
+        syncStateFromInputs();
+        updateTravelMode();
+        calculatePlan();
+        markDirty();
+      });
+
+      els.addRequired.addEventListener("click", () => {
+        state.required.push({ name: "新しい準備", minutes: 10 });
+        renderTasks();
+        calculatePlan();
+        markDirty();
+      });
+
+      els.addOptional.addEventListener("click", () => {
+        state.optional.push({ name: "やりたいこと", minutes: 20, priority: "中" });
+        renderTasks();
+        calculatePlan();
+        markDirty();
+      });
+
+      els.calculate.addEventListener("click", () => {
+        syncStateFromInputs();
+        calculatePlan();
+        showToast("逆算しました");
+      });
+
+      els.navTabs.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActivePage(button.dataset.pageTarget);
+        });
+      });
+
+      els.pageJumps.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActivePage(button.dataset.pageJump);
+        });
+      });
+
+      els.saveTemplate.addEventListener("click", () => {
+        persistState();
+        showToast("ルーティンを保存しました");
+      });
+
+      els.resetDemo.addEventListener("click", () => {
+        Object.assign(state, structuredClone(demoState));
+        selectedTravelMode = state.travelMode;
+        hydrate();
+        renderTasks();
+        calculatePlan();
+        persistState();
+        showToast("デモ状態に戻しました");
+      });
+
+      els.copyShare.addEventListener("click", async () => {
+        if (!lastShareText) calculatePlan();
+        await copyText(lastShareText);
+      });
+
+      [els.copyPublicUrl, els.copyPublicUrlBottom].filter(Boolean).forEach((button) => {
+        button.addEventListener("click", async () => {
+          await copyText(PUBLIC_URL);
+        });
+      });
+
+      [els.openFeedback, els.openFeedbackTop].filter(Boolean).forEach((button) => {
+        button.addEventListener("click", () => {
+          window.open(FEEDBACK_URL, "_blank", "noopener");
+        });
+      });
+
+      els.shareNative.addEventListener("click", async () => {
+        if (!lastShareText) calculatePlan();
+        if (navigator.share) {
+          try {
+            await navigator.share({ text: lastShareText });
+          } catch {
+            return;
+          }
+        } else {
+          await copyText(lastShareText);
+        }
+      });
+    }
+
+    function setActivePage(page) {
+      if (!page) return;
+      syncStateFromInputs();
+      if (["design", "tasks", "startline", "puzzle", "settings"].includes(page)) {
+        calculatePlan();
+      }
+      els.appPages.forEach((section) => {
+        section.classList.toggle("is-active", section.dataset.page === page);
+      });
+      const activeNavPage = page === "tasks" || page === "puzzle" ? "design" : page;
+      els.navTabs.forEach((button) => {
+        const isActive = button.dataset.pageTarget === activeNavPage;
+        button.classList.toggle("is-active", isActive);
+        if (isActive) {
+          button.setAttribute("aria-current", "page");
+        } else {
+          button.removeAttribute("aria-current");
+        }
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderTasks() {
+      els.requiredTasks.innerHTML = "";
+      state.required.forEach((task, index) => {
+        els.requiredTasks.appendChild(createTaskRow(task, index, "required"));
+      });
+
+      els.optionalTasks.innerHTML = "";
+      state.optional.forEach((task, index) => {
+        els.optionalTasks.appendChild(createTaskRow(task, index, "optional"));
+      });
+    }
+
+    function createTaskRow(task, index, type) {
+      const row = document.createElement("div");
+      row.className = type === "optional" ? "task-row compact" : "task-row";
+
+      const nameLabel = document.createElement("label");
+      nameLabel.textContent = "名前";
+      const name = document.createElement("input");
+      name.type = "text";
+      name.value = task.name;
+      name.maxLength = 24;
+      name.addEventListener("input", () => {
+        task.name = name.value.trimStart();
+        calculatePlan();
+        markDirty();
+      });
+      nameLabel.appendChild(name);
+
+      const minutesLabel = document.createElement("label");
+      minutesLabel.textContent = "分";
+      const minutes = document.createElement("input");
+      minutes.type = "number";
+      minutes.value = String(task.minutes);
+      minutes.min = "0";
+      minutes.max = "300";
+      minutes.inputMode = "numeric";
+      minutes.addEventListener("input", () => {
+        task.minutes = clampNumber(minutes.value, 0, 300);
+        calculatePlan();
+        markDirty();
+      });
+      minutesLabel.appendChild(minutes);
+
+      row.appendChild(nameLabel);
+      row.appendChild(minutesLabel);
+
+      if (type === "optional") {
+        const priorityLabel = document.createElement("label");
+        priorityLabel.textContent = "優先";
+        const priority = document.createElement("select");
+        ["高", "中", "低"].forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          option.selected = (task.priority || "中") === value;
+          priority.appendChild(option);
+        });
+        priority.addEventListener("change", () => {
+          task.priority = priority.value;
+          calculatePlan();
+          markDirty();
+        });
+        priorityLabel.appendChild(priority);
+        row.appendChild(priorityLabel);
+      }
+
+      const remove = document.createElement("button");
+      remove.className = "icon-button";
+      remove.type = "button";
+      remove.textContent = "×";
+      remove.title = "削除";
+      remove.setAttribute("aria-label", `${task.name || "タスク"}を削除`);
+      remove.addEventListener("click", () => {
+        state[type].splice(index, 1);
+        renderTasks();
+        calculatePlan();
+        markDirty();
+      });
+      row.appendChild(remove);
+      return row;
+    }
+
+    function syncStateFromInputs() {
+      state.arrivalTime = els.arrivalTime.value || "08:30";
+      state.arrivalBuffer = clampNumber(els.arrivalBuffer.value, 0, 180);
+      state.eventName = els.eventName.value.trim() || "予定";
+      state.travelMinutes = clampNumber(els.travelMinutes.value, 0, 600);
+      state.trafficBuffer = clampNumber(els.trafficBuffer.value, 0, 180);
+      state.travelMode = selectedTravelMode;
+      state.earliestStart = els.earliestStart.value || "05:30";
+      state.minimumMargin = clampNumber(els.minimumMargin.value, 0, 180);
+    }
+
+    function calculatePlan() {
+      syncStateFromInputs();
+      const required = cleanTasks(state.required);
+      const optional = cleanTasks(state.optional);
+      const arrival = timeToMinutes(state.arrivalTime);
+      const leaveBy = arrival - state.arrivalBuffer - state.travelMinutes - state.trafficBuffer;
+      const requiredTotal = sumMinutes(required);
+      const baseStart = leaveBy - requiredTotal;
+      const earliest = timeToMinutes(state.earliestStart);
+      const availableBeforeBase = baseStart - earliest;
+      const freeAfterMinimum = availableBeforeBase - state.minimumMargin;
+      const selectedOptional = chooseOptional(optional, Math.max(0, freeAfterMinimum));
+      const optionalTotal = sumMinutes(selectedOptional);
+      const finalStart = baseStart - optionalTotal;
+      const finalMargin = finalStart - earliest;
+      const timeline = buildTimeline({
+        selectedOptional,
+        required,
+        earliest,
+        finalStart,
+        finalMargin,
+        leaveBy,
+        arrival,
+        travelMinutes: state.travelMinutes + state.trafficBuffer,
+        arrivalBuffer: state.arrivalBuffer
+      });
+
+      updateSummary({
+        finalStart,
+        leaveBy,
+        requiredTotal,
+        optionalTotal,
+        finalMargin,
+        availableBeforeBase,
+        selectedOptional,
+        optional
+      });
+      updateTimeline(timeline);
+      updateShare({ finalStart, leaveBy, selectedOptional, finalMargin });
+    }
+
+    function cleanTasks(tasks) {
+      return tasks
+        .map((task) => ({
+          name: String(task.name || "タスク").trim() || "タスク",
+          minutes: clampNumber(task.minutes, 0, 300),
+          priority: task.priority || "中"
+        }))
+        .filter((task) => task.minutes > 0);
+    }
+
+    function chooseOptional(tasks, budget) {
+      const ordered = sortByPriority(tasks);
+      const picked = [];
+      let remaining = budget;
+      for (const task of ordered) {
+        if (task.minutes <= remaining) {
+          picked.push(task);
+          remaining -= task.minutes;
+        }
+      }
+      return picked;
+    }
+
+    function sortByPriority(tasks) {
+      const rank = { "高": 0, "中": 1, "低": 2 };
+      return [...tasks].sort((a, b) => {
+        const priorityDiff = (rank[a.priority] ?? 1) - (rank[b.priority] ?? 1);
+        return priorityDiff || a.minutes - b.minutes;
+      });
+    }
+
+    function buildTimeline({ selectedOptional, required, earliest, finalStart, finalMargin, leaveBy, arrival, travelMinutes, arrivalBuffer }) {
+      const items = [];
+      if (finalMargin > 0) {
+        items.push({
+          time: earliest,
+          title: "空きスロット",
+          note: `ここにジムや朝食をはめられる${finalMargin}分の余白です。`,
+          minutes: finalMargin,
+          type: "free",
+          label: "空き"
+        });
+      } else if (finalMargin < 0) {
+        items.push({
+          time: finalStart,
+          title: "不足スロット",
+          note: `開始可能時刻より${Math.abs(finalMargin)}分はみ出しています。何かを削る必要があります。`,
+          minutes: Math.abs(finalMargin),
+          type: "shortage",
+          label: "不足"
+        });
+      }
+      let cursor = finalStart;
+      selectedOptional.forEach((task) => {
+        items.push({
+          time: cursor,
+          title: task.name,
+          note: `任意タスク・優先度${task.priority}`,
+          minutes: task.minutes,
+          type: "optional",
+          label: "任意"
+        });
+        cursor += task.minutes;
+      });
+      required.forEach((task) => {
+        items.push({
+          time: cursor,
+          title: task.name,
+          note: "必須ルーティン",
+          minutes: task.minutes,
+          type: "required",
+          label: "必須"
+        });
+        cursor += task.minutes;
+      });
+      items.push({
+        time: leaveBy,
+        title: "家を出る",
+        note: `${state.travelMode} ${state.travelMinutes}分 + ゆらぎ ${state.trafficBuffer}分`,
+        minutes: travelMinutes,
+        type: "travel",
+        label: "移動"
+      });
+      items.push({
+        time: arrival - arrivalBuffer,
+        title: "現地付近に到着",
+        note: `到着バッファ ${arrivalBuffer}分`,
+        minutes: arrivalBuffer,
+        type: "deadline",
+        label: "余裕"
+      });
+      items.push({
+        time: arrival,
+        title: state.eventName,
+        note: "予定開始",
+        minutes: 0,
+        type: "deadline",
+        label: "開始"
+      });
+      return items;
+    }
+
+    function updateSummary(data) {
+      els.startTime.textContent = formatMinutes(data.finalStart);
+      els.leaveTime.textContent = formatMinutes(data.leaveBy);
+      els.prepTotal.textContent = `${data.requiredTotal}分`;
+      els.freeMargin.textContent = data.finalMargin >= 0 ? `${data.finalMargin}分` : `${Math.abs(data.finalMargin)}分不足`;
+      els.startDetail.textContent = data.optionalTotal > 0 ? `任意タスク ${data.optionalTotal}分込み` : "必須ルーティンのみ";
+      els.leaveDetail.textContent = `${state.travelMode} ${state.travelMinutes + state.trafficBuffer}分`;
+      els.prepDetail.textContent = `${data.selectedOptional.length}件の任意タスクを採用`;
+      els.marginDetail.textContent = `${state.earliestStart}から開始可能`;
+      els.heroEvent.textContent = `${state.arrivalTime} ${state.eventName}`;
+      els.heroStart.textContent = formatMinutes(data.finalStart);
+      els.heroLeave.textContent = formatMinutes(data.leaveBy);
+
+      const optionalNames = data.selectedOptional.map((task) => task.name).join("、");
+      const skippedOptional = data.optional.filter((task) => !data.selectedOptional.includes(task));
+      const nextOptional = sortByPriority(skippedOptional)[0];
+      const remainingOptionalBudget = Math.max(0, data.availableBeforeBase - state.minimumMargin - data.optionalTotal);
+      const shortageForNext = nextOptional ? Math.max(0, nextOptional.minutes - remainingOptionalBudget) : 0;
+      els.decisionBox.classList.remove("good", "tight", "bad");
+      if (data.finalMargin < 0) {
+        els.decisionBox.classList.add("bad");
+        els.decisionTitle.textContent = "今日は詰め込みすぎ";
+        els.decisionText.textContent = `${Math.abs(data.finalMargin)}分の前倒しが必要です。任意タスクかバッファを削る判断が必要です。`;
+        els.decisionBadge.textContent = "無理";
+        els.heroDecision.textContent = "詰め込みすぎ";
+      } else if (data.finalMargin < 10) {
+        els.decisionBox.classList.add("tight");
+        els.decisionTitle.textContent = optionalNames ? "行けるけどかなりギリ" : "必須だけでギリ";
+        els.decisionText.textContent = optionalNames ? `${optionalNames}は入りますが、余白は${data.finalMargin}分です。` : `余白は${data.finalMargin}分です。移動の乱れには弱い日です。`;
+        els.decisionBadge.textContent = "注意";
+        els.heroDecision.textContent = optionalNames ? `${optionalNames}ギリ可` : "必須でギリ";
+      } else if (nextOptional && data.selectedOptional.length === 0) {
+        els.decisionBox.classList.add(shortageForNext <= 15 ? "tight" : "good");
+        els.decisionTitle.textContent = `${nextOptional.name}は今日は見送り`;
+        els.decisionText.textContent = shortageForNext <= 15
+          ? `あと${shortageForNext}分短縮できれば入ります。必須だけなら${data.finalMargin}分の余白があります。`
+          : `入れるにはあと${shortageForNext}分必要です。必須だけなら${data.finalMargin}分の余白があります。`;
+        els.decisionBadge.textContent = shortageForNext <= 15 ? "短縮可" : "見送り";
+        els.heroDecision.textContent = `${nextOptional.name}見送り`;
+      } else if (nextOptional) {
+        els.decisionBox.classList.add("good");
+        els.decisionTitle.textContent = `${optionalNames}まで行ける`;
+        els.decisionText.textContent = `${nextOptional.name}を追加するにはあと${shortageForNext}分必要です。開始は${formatMinutes(data.finalStart)}です。`;
+        els.decisionBadge.textContent = "一部OK";
+        els.heroDecision.textContent = `${optionalNames}可`;
+      } else {
+        els.decisionBox.classList.add("good");
+        els.decisionTitle.textContent = optionalNames ? `${optionalNames}まで行ける` : "必須ルーティンは余裕あり";
+        els.decisionText.textContent = optionalNames ? `開始は${formatMinutes(data.finalStart)}。最低余白を残して予定前タスクを入れています。` : `開始は${formatMinutes(data.finalStart)}。任意タスクなしなら${data.availableBeforeBase}分の余白があります。`;
+        els.decisionBadge.textContent = "OK";
+        els.heroDecision.textContent = optionalNames ? `${optionalNames}可` : "余裕あり";
+      }
+    }
+
+    function updateTimeline(items) {
+      els.timeline.innerHTML = "";
+      items.forEach((item) => {
+        const row = document.createElement("article");
+        row.className = `timeline-item ${item.type}`;
+        row.style.setProperty("--block-height", `${getBlockHeight(item)}px`);
+        row.innerHTML = `
+          <div class="time">${formatMinutes(item.time)}</div>
+          <div class="puzzle-node" aria-hidden="true"></div>
+          <div class="timeline-main">
+            <h4>${escapeHtml(item.title)}</h4>
+            <p>${escapeHtml(item.note)}</p>
+          </div>
+          <div class="duration">${item.label || (item.minutes ? `${item.minutes}分` : "開始")}</div>
+        `;
+        els.timeline.appendChild(row);
+      });
+    }
+
+    function getBlockHeight(item) {
+      if (!item.minutes) return 56;
+      const scaled = 46 + (item.minutes * 1.15);
+      return Math.min(128, Math.max(56, Math.round(scaled)));
+    }
+
+    function updateShare({ finalStart, leaveBy, selectedOptional, finalMargin }) {
+      const optionalText = selectedOptional.length
+        ? `${selectedOptional.map((task) => task.name).join("、")}まで行ける`
+        : "今日は必須ルーティン優先";
+      const marginText = finalMargin >= 0 ? `余白${finalMargin}分` : `${Math.abs(finalMargin)}分不足`;
+      els.sharePreview.innerHTML = `
+        <span>StartLine</span>
+        <strong>今日は ${formatMinutes(finalStart)} に人間開始</strong>
+        <p>${state.eventName} / ${formatMinutes(leaveBy)}に家を出る / ${optionalText} / ${marginText}</p>
+      `;
+      lastShareText = `今日は${formatMinutes(finalStart)}に人間開始。\n${state.eventName}は${state.arrivalTime}、${formatMinutes(leaveBy)}に家を出る。\n${optionalText}。${marginText}。\n${PUBLIC_URL}\n#StartLine #出発逆算`;
+    }
+
+    function persistState() {
+      syncStateFromInputs();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      els.saveStatus.textContent = "保存済み";
+    }
+
+    function markDirty() {
+      els.saveStatus.textContent = "未保存の変更あり";
+    }
+
+    function updateTravelMode() {
+      [...els.travelMode.querySelectorAll("button")].forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.value === selectedTravelMode ? "true" : "false");
+      });
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("共有文をコピーしました");
+      } catch {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+        showToast("共有文をコピーしました");
+      }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function sumMinutes(tasks) {
+      return tasks.reduce((total, task) => total + task.minutes, 0);
+    }
+
+    function timeToMinutes(value) {
+      const [hours, minutes] = String(value || "00:00").split(":").map(Number);
+      return (hours * 60) + minutes;
+    }
+
+    function formatMinutes(value) {
+      const day = 24 * 60;
+      const normalized = ((Math.round(value) % day) + day) % day;
+      const hours = String(Math.floor(normalized / 60)).padStart(2, "0");
+      const minutes = String(normalized % 60).padStart(2, "0");
+      return `${hours}:${minutes}`;
+    }
+
+    function clampNumber(value, min, max) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return min;
+      return Math.min(max, Math.max(min, Math.round(number)));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
